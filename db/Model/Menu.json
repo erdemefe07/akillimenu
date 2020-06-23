@@ -1,0 +1,37 @@
+{
+  "IsletmeId": "5ee7bc1c05858e268b5734d5",
+  "Menu": {
+    "Corbalar": [
+      {
+        "Ad": "Yayla",
+        "Resim": "https://i.nefisyemektarifleri.com/2017/11/10/yayla-corbasi-lokanta-usulu-2-500x333.jpg",
+        "Hazır Olma Süresi (saniye)": "900",
+        "Malzemeler": [
+          "2 su bardağı yoğurt",
+          "1,5 yemek kaşığı (tepeleme) un",
+          "2 çay kaşığı tuz"
+        ],
+        "Kalori": {
+          "Ölçüm Tipi": "Porsiyon / Gram",
+          "Ölçüm Değeri": "1 (Porsiyon) / 100 (Gram)",
+          "Kcal": "47"
+        }
+      },
+      {
+        "Ad": "Domates",
+        "Resim": "https://cdn.yemek.com/mnresize/940/940/uploads/2014/06/domates-corbasi-yemekcom.jpg",
+        "Hazır Olma Süresi (saniye)": "1800",
+        "Malzemeler": [
+          "5 adet büyük boy sulu domates",
+          "2 yemek kaşığı un",
+          "1 yemek kaşığıtereyağı"
+        ],
+        "Kalori": {
+          "Ölçüm Tipi": "Porsiyon / Gram",
+          "Ölçüm Değeri": "1 (Porsiyon) / 100 (Gram)",
+          "Kcal": "47"
+        }
+      }
+    ]
+  }
+}
