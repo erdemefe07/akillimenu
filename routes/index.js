@@ -5,6 +5,10 @@ const MenuGenelTest = require('../middlewares/MenuGenelTest.js');
 const MesrubatTest = require('../middlewares/MesrubatTest.js');
 
 router.get('/test', (req, res) => {
+  res.json("TEST ENDPOINT")
+});
+
+router.post('/test', (req, res) => {
   res.json(req.body)
 });
 
