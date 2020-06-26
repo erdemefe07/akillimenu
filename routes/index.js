@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Isletme = require("../db/Model/Isletme.js");
+const MenuGenelTest = require('../middlewares/MenuGenelTest.js');
+const MesrubatTest = require('../middlewares/MesrubatTest.js');
 
 router.get('/test', (req, res) => {
   res.json(req.body)
@@ -32,6 +34,26 @@ router.post('/', (req, res) => {
     .catch((err) => {
       res.status(500).json(err);
     });
+});
+
+router.post('/:id/Corba', MenuGenelTest, (req, res) => {
+  Isletme.findByIdAndUpdate(req.params.id, { $push: { "Menu.Çorbalar": req.body } }, { new: true })
+    .then(data => res.json(data))
+});
+
+router.post('/:id/AnaYemek', MenuGenelTest, (req, res) => {
+  Isletme.findByIdAndUpdate(req.params.id, { $push: { "Menu.AnaYemekler": req.body } }, { new: true })
+    .then(data => res.json(data))
+});
+
+router.post('/:id/Mesrubat', MesrubatTest, (req, res) => {
+  Isletme.findByIdAndUpdate(req.params.id, { $push: { "Menu.Meşrubatlar": req.body } }, { new: true })
+    .then(data => res.json(data))
+});
+
+router.post('/:id/Tatli', MenuGenelTest, (req, res) => {
+  Isletme.findByIdAndUpdate(req.params.id, { $push: { "Menu.Tatlilar": req.body } }, { new: true })
+    .then(data => res.json(data))
 });
 
 router.put('/:id', (req, res) => {

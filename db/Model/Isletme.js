@@ -28,6 +28,38 @@ const IsletmeSchema = new Schema({
     type: Date,
     default: Date.now
   },
+
+  Menu: {
+    Çorbalar: [{
+      Ad: String,
+      Fiyat: Number,
+      Kalori: Number,
+      Hazirlanma_Suresi: Number,
+      Aciklama: String
+    }],
+    AnaYemekler: [{
+      Ad: String,
+      Fiyat: Number,
+      Kalori: Number,
+      Hazirlanma_Suresi: Number,
+      Aciklama: String
+    }],
+    Meşrubatlar: [{
+      Ad: String,
+      Fiyat: Number,
+      Kalori: Number, // not required
+      Hazirlanma_Suresi: Number,
+      Gramaj: String, // mL,
+      Aciklama: String
+    }],
+    Tatlilar: [{
+      Ad: String,
+      Fiyat: Number,
+      Kalori: Number,
+      Hazirlanma_Suresi: Number,
+      Aciklama: String
+    }],
+  }
 });
 
 module.exports = mongoose.model('Isletme', IsletmeSchema);
