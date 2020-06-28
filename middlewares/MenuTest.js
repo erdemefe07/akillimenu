@@ -3,7 +3,7 @@ const validator = require('validator');
 module.exports = (req, res, next) => {
     message = [];
 
-    const { Ad, Fiyat, Kalori, Hazirlanma_Suresi, Gramaj, Aciklama } = req.body;
+    const { Ad, Fiyat, Kalori, Hazirlanma_Suresi, Aciklama } = req.body;
 
     if (!validator.isByteLength(Ad, { min: 2, max: 200 }))
         message.push("Ad Alanı Geçersiz.");
@@ -17,14 +17,10 @@ module.exports = (req, res, next) => {
     if (!validator.isInt(Hazirlanma_Suresi.toString(), { min: 0, max: 60 }))
         message.push("Hazırlanma Süresi Alanı Geçersiz.");
 
-    if (!validator.isInt(Gramaj.toString(), { min: 0, max: 9999 }))
-        message.push("Gramaj Alanı Geçersiz.");
-
     if (!validator.isByteLength(Aciklama, { min: 0, max: 2000 }))
         message.push("Açıklama Alanı Geçersiz.");
 
-
-    if (message) {
+    if (message.length > 0) {
         console.log(message)
         return res.send({
             status: false,

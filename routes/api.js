@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Isletme = require("../db/Model/Isletme.js");
-const MenuGenelTest = require('../middlewares/MenuGenelTest.js');
-const MesrubatTest = require('../middlewares/MesrubatTest.js');
+const MenuTest = require('../middlewares/MenuTest.js');
 
 router.get('/test', (req, res) => {
   res.json("TEST ENDPOINT")
@@ -40,22 +39,22 @@ router.post('/', (req, res) => {
     });
 });
 
-router.post('/:id/Corba', MenuGenelTest, (req, res) => {
+router.post('/:id/Corba', MenuTest, (req, res) => {
   Isletme.findByIdAndUpdate(req.params.id, { $push: { "Menu.Çorbalar": req.body } }, { new: true })
     .then(data => res.json(data))
 });
 
-router.post('/:id/AnaYemek', MenuGenelTest, (req, res) => {
+router.post('/:id/AnaYemek', MenuTest, (req, res) => {
   Isletme.findByIdAndUpdate(req.params.id, { $push: { "Menu.AnaYemekler": req.body } }, { new: true })
     .then(data => res.json(data))
 });
 
-router.post('/:id/Mesrubat', MesrubatTest, (req, res) => {
+router.post('/:id/Mesrubat', MenuTest, (req, res) => {
   Isletme.findByIdAndUpdate(req.params.id, { $push: { "Menu.Meşrubatlar": req.body } }, { new: true })
     .then(data => res.json(data))
 });
 
-router.post('/:id/Tatli', MenuGenelTest, (req, res) => {
+router.post('/:id/Tatli', MenuTest, (req, res) => {
   Isletme.findByIdAndUpdate(req.params.id, { $push: { "Menu.Tatlilar": req.body } }, { new: true })
     .then(data => res.json(data))
 });

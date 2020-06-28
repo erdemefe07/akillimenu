@@ -49,7 +49,6 @@ const IsletmeSchema = new Schema({
       Fiyat: Number,
       Kalori: Number, // not required
       Hazirlanma_Suresi: Number,
-      Gramaj: String, // mL,
       Aciklama: String
     }],
     Tatlilar: [{
