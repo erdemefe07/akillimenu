@@ -4,7 +4,7 @@ deploy () {
     git init
     git add -A
     git commit -m "$commitMessage"
-    git push -f https://github.com/erdemefe07/akillimenum.git master
+    git push -f https://github.com/erdemefe07/akillimenu.git master
     echo "\n\e[92mDeploy işlemi başarıyla tamamlandı!\e[39m\n"
 }
 
