@@ -21,7 +21,6 @@ module.exports = (req, res, next) => {
         message.push("Açıklama Alanı Geçersiz.");
 
     if (message.length > 0) {
-        console.log(message)
         return res.send({
             status: false,
             message

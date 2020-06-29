@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Akıllı Menüm</title>
+        <style>
+</style>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        
+        
+        
+    </head>
+    <body class="vscode-light">
+        <h1 id="akıllı-menüm">Akıllı Menüm</h1>
+<p>Server Domain: <a href="https://akillimenu.herokuapp.com/">akillimenu.herokuapp.com</a></p>
+<h1 id="örnek-global-hata-500-döndürür">Örnek Global Hata (500) Döndürür</h1>
+<pre><code><code><div>{
+  &quot;stringValue&quot;: &quot;\&quot;5\&quot;&quot;,
+  &quot;kind&quot;: &quot;ObjectId&quot;,
+  &quot;value&quot;: 5,
+  &quot;path&quot;: &quot;_id&quot;,
+  &quot;reason&quot;: {
+    
+  }
+}
+</div></code></code></pre>
+<h1 id="test-endpoints">Test endpoints</h1>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>HTTP Verb</th>
+<th>POST Body</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/test</td>
+<td><code>GET</code></td>
+<td>Empty</td>
+<td>&quot;TEST ENDPOİNT&quot;</td>
+</tr>
+<tr>
+<td>/test</td>
+<td><code>POST</code></td>
+<td>Any</td>
+<td><strong>{ POST Body }</strong></td>
+</tr>
+</tbody>
+</table>
+<h1 id="get-endpoints">GET endpoints</h1>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Status</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/</td>
+<td><code>200</code></td>
+<td>Bütün işletmeleri eöndürür</td>
+</tr>
+<tr>
+<td>/:id</td>
+<td><code>200 | 404</code></td>
+<td><code>(200)</code> Idsi verilen işletmeyi döndürür <br> <code>(404)</code> { &quot;Sonuç&quot;: &quot;Bulunamadı&quot; }</td>
+</tr>
+</tbody>
+</table>
+<style>
+td{
+    border:1px solid red;
+}
+</style>
+    </body>
+    </html>
