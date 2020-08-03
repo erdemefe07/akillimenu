@@ -1,5 +1,6 @@
 require('dotenv').config()
 const cors = require('cors')
+const fs = require('fs');
 
 // Database Connections, Models
 require('./db/connection.js')()
@@ -21,7 +22,7 @@ io.on('connection', socket => {
             if (err)
                 return socket.disconnect()
 
-            if(!data)
+            if (!data)
                 return socket.disconnect()
 
             const storedToken = await Tokens.get(data.Id)
@@ -63,13 +64,53 @@ app.use(express.static('static'))
 const orgRoute = require('./routes/org')
 const catRoute = require('./routes/cat')
 const proRoute = require('./routes/pro')
-const ordRoute = require('./routes/ord')
+const ordRoute = require('./routes/ord');
+const tabRoute = require('./routes/tab');
 
 app.use('/org', orgRoute)
 app.use('/cat', catRoute)
 app.use('/pro', proRoute)
 app.use('/ord', ordRoute)
+app.use('/tab', tabRoute)
+app.use('/:id', (req, res) => {
+    const resim = fs.readFileSync('./uploads/' + req.params.id)
+    res.contentType('image/jpeg');
+    res.send(resim)
+})
 
 server.listen(process.env.PORT, () => console.log(`http://localhost:${process.env.PORT}`))
 
 module.exports = app
+
+
+// ------------ EASIQL ------------ \\
+
+// const maintains = {
+//     'Organization': {
+//         fields: ['name', 'email', '_id'],
+//         resolver: () => {
+//             return Organization.find().then(data => data)
+//         }
+//     }
+// }
+
+// app.use(async (req, res, next) => {
+//     const reso = req.body.org
+//     const wants = req.body.fields
+//     if (reso == 'Organization') {
+//         const returned = await maintains.Organization.resolver()
+
+//         const aio = []
+//         if (Array.isArray(returned)) {
+//             for (let i = 0; i < returned.length; i++) {
+//                 const item = {}
+//                 for (let j = 0; j < wants.length; j++)
+//                     item[wants[j]] = returned[i][wants[j]]
+//                 aio.push(item)
+//             }
+//         }
+//         res.json(aio)
+
+//     }
+
+// })

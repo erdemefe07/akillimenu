@@ -5,8 +5,9 @@ const bcrypt = require('bcrypt')
 const uniqueValidator = require('mongoose-unique-validator')
 const PasswordValidator = require('password-validator')
 const pass = new PasswordValidator()
-const { isEmail } = require('validator')
+const { isEmail, isMobilePhone } = require('validator')
 const CategorySchema = require('./Category')
+const TableSchema = require('./Table')
 pass
   .has().uppercase()
   .has().lowercase()
@@ -40,10 +41,25 @@ const OrganizationSchema = new Schema({
     required: [true, '{PATH} girilmesi zorunludur'],
     select: false
   },
+  address: {
+    type: String,
+    minlength: [8, '{PATH} en az 8 karakter olmalı'],
+    maxlength: [300, '{PATH} en fazla 300 karakter olmalı'],
+    required: [true, '{PATH} girilmesi zorunludur'],
+  },
+  phone: {
+    type: String,
+    required: [true, '{PATH} girilmesi zorunludur'],
+    validate: [isMobilePhone, 'Geçersiz email'],
+  },
+  photo: {
+    type: String
+  },
   date: {
     type: Date,
     default: Date.now
   },
+  tables: [TableSchema],
   menu: [CategorySchema]
 })
 

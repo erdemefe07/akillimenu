@@ -9,24 +9,27 @@ function isPrice (value) {
 const ProductSchema = new Schema({
   name: {
     type: String,
-    maxlength: [50, '{PATH} must have at most 50 characters'],
-    required: [true, '{PATH} is required']
+    maxlength: [50, '{PATH} en fazla 50 karakter olmalı'],
+    required: [true, '{PATH} girilmesi zorunludur']
   },
   price: {
     type: Number,
-    required: [true, '{PATH} is required'],
-    validate: [isPrice, 'Invalid Price']
+    required: [true, '{PATH} girilmesi zorunludur'],
+    validate: [isPrice, 'Geçersiz Fiyat']
   },
   calori: {
     type: Number
   },
   preparationTime: {
     type: Number,
-    required: [true, '{PATH} is required']
+    required: [true, '{PATH} girilmesi zorunludur']
+  },
+  photo: {
+    type: String
   },
   commentary: {
     type: String,
-    maxlength: [300, '{PATH} must have at most 300 characters']
+    maxlength: [300, '{PATH} en fazla 300 karakter olmalı']
   }
 })
 

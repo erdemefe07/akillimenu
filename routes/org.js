@@ -1,5 +1,7 @@
 const express = require('express')
 const router = express.Router()
+const fs = require('fs')
+const path = require('path')
 const mongoose = require('mongoose')
 const Organization = require('../db/Model/Organization.js')
 const tokenVerify = require('../helpers/jwt').verify
@@ -7,8 +9,8 @@ const signToken = require('../helpers/jwt').sign
 const bcrypt = require('bcrypt')
 const { isEmail } = require('validator')
 const Tokens = require('../db/redis.js')
-
-// TODO FUNCTİON 'VALİDATE NULL ARGS'
+const multer = require('multer')
+const upload = multer({ dest: 'uploads/', limits: { fileSize: 2097152 } })
 
 router.get('/', (req, res) => {
   Organization.find()
@@ -16,7 +18,6 @@ router.get('/', (req, res) => {
     .catch(err => res.error('', err))
 })
 
-// TODO TEKRAR TEST YAP JWT VERİFY'A
 router.get('/current', tokenVerify, (req, res) => {
   Organization.findById(req.AuthData)
     .then(data => res.json(data))
@@ -40,11 +41,12 @@ router.get('/:id', (req, res) => {
 // ! ------ POST------ POST ------ POST ------ POST ------ POST ------ POST------
 
 router.post('/', (req, res) => {
-  const { username, password, email, name } = req.body
-  if (!username || !password || !email || !name)
+  const { username, password, email, name, address, phone } = req.body
+  console.log("req.body", req)
+  if (!username || !password || !email || !name || !address || !phone)
     return res.error('Bazı alanlar boş')
 
-  const organization = new Organization({ username, password, email, name })
+  const organization = new Organization({ username, password, email, name, address, phone })
 
   organization.save()
     .then(data => {
@@ -53,6 +55,30 @@ router.post('/', (req, res) => {
       return res.error('Bilinnmeyen Hata', data)
     })
     .catch(err => res.error(err.message))
+})
+
+router.put('/', [upload.single('photo'), tokenVerify], (req, res) => {
+  let photo = req.file
+  if (!photo)
+    res.error('Fotoğraf bulunamadı')
+
+  photo = photo.filename
+
+  Organization.findByIdAndUpdate(req.AuthData, { photo }, { runValidators: true }).select('-_id photo')
+    .then(data => {
+      if (!data)
+        return res.error('', { message: 'İşletme fotoğrafı değiştirirken hata meydana geldi. Lütfen kaynak koduna göz atınız.', name: 'Bilinmeyen Kaynaklı Hata' })
+
+      res.json({ ok: true })
+
+      if (data.photo) {
+        fs.unlink(path.join(__dirname, '/../uploads/' + data.photo), (err) => {
+        })
+      }
+    })
+    .catch(err => {
+      res.error('', err)
+    })
 })
 
 router.post('/login', async (req, res) => {
