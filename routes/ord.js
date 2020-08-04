@@ -36,6 +36,9 @@ router.get('/', async (req, res) => {
             if (!mongoose.Types.ObjectId.isValid(y.id))
                 return error = 'Geçersiz Ürün Id`si'
 
+            if (typeof y.table != 'number')
+                return error = 'Geçersiz Masa'
+
             if (typeof y.count != 'number' || y.count < 1)
                 return error = 'Geçersiz Ürün Miktarı'
 

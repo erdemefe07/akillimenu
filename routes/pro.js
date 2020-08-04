@@ -3,8 +3,10 @@ const router = express.Router()
 const mongoose = require('mongoose')
 const Organization = require('../db/Model/Organization.js')
 const tokenVerify = require('../helpers/jwt').verify
-
-// TODO .THEN -> .CATCH LARI AYARLA
+const fs = require('fs')
+const path = require('path')
+const multer = require('multer')
+const upload = multer({ dest: 'uploads/', limits: { fileSize: 2097152 } })
 
 router.get('/:org/:cat/:id', (req, res) => {
     const org = req.params.org
@@ -39,7 +41,7 @@ router.get('/:org/:cat/:id', (req, res) => {
         })
 })
 
-router.post('/:cat', tokenVerify, (req, res) => {
+router.post('/:cat', [upload.single('photo'), tokenVerify], (req, res) => {
     const Id = req.params.cat
     if (!mongoose.Types.ObjectId.isValid(Id))
         return res.error('Geçersiz Id')
@@ -48,7 +50,9 @@ router.post('/:cat', tokenVerify, (req, res) => {
     if (!name || !price || price < 0 || calori < 0 || !preparationTime || preparationTime < 0)
         return res.error('Bazı alanlar geçersiz.')
 
-    Organization.findOneAndUpdate({ _id: req.AuthData, 'menu._id': Id }, { $push: { 'menu.$.products': { name, price, calori, preparationTime, commentary } } }, { new: true, runValidators: true }).select('-_id menu')
+    const photo = req.file?.filename || 'ornekProduct'
+
+    Organization.findOneAndUpdate({ _id: req.AuthData, 'menu._id': Id }, { $push: { 'menu.$.products': { name, price, calori, preparationTime, commentary, photo } } }, { new: true, runValidators: true }).select('-_id menu')
         .then(data => {
             if (!data)
                 return res.error('Kategori bulunamadı')
@@ -97,6 +101,46 @@ router.put('/:cat/:id', tokenVerify, (req, res) => {
         })
 })
 
+router.put('/:cat/photo/:id', [upload.single('photo'), tokenVerify], (req, res) => {
+    const cat = req.params.cat
+    if (!mongoose.Types.ObjectId.isValid(cat))
+        return res.error('Geçersiz Kategori Id`si')
+
+    const Id = req.params.id
+    if (!mongoose.Types.ObjectId.isValid(Id))
+        return res.error('Geçersiz Id')
+
+    const photo = req.file?.filename
+    if (!photo)
+        return res.error('Fotoğraf eksik ya da geçerli değil')
+
+    Organization.findOne({ _id: req.AuthData, 'menu._id': cat, 'menu.products._id': Id }, 'menu')
+        .then(data => {
+            if (!data)
+                return res.error('Bulunamadı')
+            var eskiPhoto = data.menu.id(cat).products.id(Id).photo
+            data.menu.id(cat).products.id(Id).photo = photo
+
+            data.save()
+                .then(data => {
+                    if (!data)
+                        return res.error('', { message: 'Ürün düzenlerken hata meydana geldi. Lütfen kaynak koduna göz atınız.', name: 'Bilinmeyen Kaynaklı Hata' })
+                    res.json({ ok: true })
+
+                    if (eskiPhoto != 'ornekProduct') {
+                        fs.unlink(path.join(__dirname, '/../uploads/' + eskiPhoto), (err) => {
+                        })
+                    }
+                })
+                .catch(err => {
+                    return res.error(err.message)
+                })
+        })
+        .catch(err => {
+            res.error('', err)
+        })
+})
+
 router.delete('/:cat/:id', tokenVerify, (req, res) => {
     const cat = req.params.cat
     if (!mongoose.Types.ObjectId.isValid(cat))
@@ -105,7 +149,7 @@ router.delete('/:cat/:id', tokenVerify, (req, res) => {
     const Id = req.params.id
     if (!mongoose.Types.ObjectId.isValid(Id))
         return res.error('Geçersiz Id')
-    
+
     Organization.findOneAndUpdate({ _id: req.AuthData, 'menu._id': cat }, { $pull: { 'menu.$.products': { _id: Id } } }, { runValidators: true }).select('-_id menu')
         .then(data => {
             if (!data)

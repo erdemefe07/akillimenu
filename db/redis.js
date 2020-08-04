@@ -28,7 +28,6 @@ module.exports = new Tokens()
 Tokens.prototype.set = (id, token) => {
   client.hset('Tokens', id, token, (err, res) => {
     if (err) console.log(err)
-    console.log('Organization Logged In')
   })
 }
 

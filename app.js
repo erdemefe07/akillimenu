@@ -72,10 +72,15 @@ app.use('/cat', catRoute)
 app.use('/pro', proRoute)
 app.use('/ord', ordRoute)
 app.use('/tab', tabRoute)
-app.use('/:id', (req, res) => {
-    const resim = fs.readFileSync('./uploads/' + req.params.id)
-    res.contentType('image/jpeg');
-    res.send(resim)
+app.get('/photos/:id', (req, res) => {
+    try {
+        const resim = fs.readFileSync('./uploads/' + req.params.id)
+        res.contentType('image/jpeg');
+        res.send(resim)
+    } catch (error) {
+        res.send('Bulunamadı')
+    }
+
 })
 
 server.listen(process.env.PORT, () => console.log(`http://localhost:${process.env.PORT}`))

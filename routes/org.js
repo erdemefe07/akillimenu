@@ -42,7 +42,6 @@ router.get('/:id', (req, res) => {
 
 router.post('/', (req, res) => {
   const { username, password, email, name, address, phone } = req.body
-  console.log("req.body", req)
   if (!username || !password || !email || !name || !address || !phone)
     return res.error('Bazı alanlar boş')
 
@@ -50,9 +49,18 @@ router.post('/', (req, res) => {
 
   organization.save()
     .then(data => {
-      if (data)
-        return res.json({ ok: true })
-      return res.error('Bilinnmeyen Hata', data)
+      if (!data)
+        return res.error('', data)
+
+      signToken(String(data._id))
+        .then(datas => {
+          if (!datas)
+            return res.error('', datas)
+
+          Tokens.set(String(data._id), datas)
+
+          return res.json({ ok: true })
+        })
     })
     .catch(err => res.error(err.message))
 })
@@ -60,7 +68,7 @@ router.post('/', (req, res) => {
 router.put('/', [upload.single('photo'), tokenVerify], (req, res) => {
   let photo = req.file
   if (!photo)
-    res.error('Fotoğraf bulunamadı')
+    return res.error('Fotoğraf bulunamadı')
 
   photo = photo.filename
 
@@ -71,7 +79,7 @@ router.put('/', [upload.single('photo'), tokenVerify], (req, res) => {
 
       res.json({ ok: true })
 
-      if (data.photo) {
+      if (data.photo != 'ornekOrganization') {
         fs.unlink(path.join(__dirname, '/../uploads/' + data.photo), (err) => {
         })
       }
@@ -99,19 +107,17 @@ router.post('/login', async (req, res) => {
     return res.error('Şifre yanlış')
   }
 
-  signToken(organization._id)
+  Tokens.get(String(organization._id))
     .then(data => {
-      if (data) {
-        Tokens.set(String(organization._id), data)
+      if (data)
         return res.json({ ok: true, token: data })
-      }
       return res.error('', err)
     })
     .catch(err => res.error('', err))
 })
 
 router.post('/logout', tokenVerify, async (req, res) => {
-  const sonuc = await Tokens.del(req.AuthData)
+  // const sonuc = await Tokens.del(req.AuthData)
   if (sonuc) {
     res.json({ ok: true })
   } else {
