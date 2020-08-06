@@ -46,7 +46,7 @@ router.post('/', [upload.single('photo'), tokenVerify], (req, res) => {
   if (!name)
     return res.error('İsim alanı boş olamaz')
 
-  const photo = req.file?.filename || 'ornekCategory'
+  const photo = req.file ? req.file.filename : 'ornekCategory'
 
   Organization.findByIdAndUpdate(req.AuthData, { $push: { menu: { name, photo } } }, { new: true, runValidators: true }).select('-_id menu').slice('menu', -1)
     .then(data => {
@@ -84,7 +84,7 @@ router.put('/photo/:id', [upload.single('photo'), tokenVerify], (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(Id))
     return res.error('Geçersiz Id')
 
-  const photo = req.file?.filename
+  const photo = req.file ? req.file.filename : false
   if (!photo)
     return res.error('Fotoğraf eksik ya da geçerli değil')
 

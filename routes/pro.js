@@ -50,7 +50,7 @@ router.post('/:cat', [upload.single('photo'), tokenVerify], (req, res) => {
     if (!name || !price || price < 0 || calori < 0 || !preparationTime || preparationTime < 0)
         return res.error('Bazı alanlar geçersiz.')
 
-    const photo = req.file?.filename || 'ornekProduct'
+    const photo = req.file ? req.file.filename : 'ornekProduct'
 
     Organization.findOneAndUpdate({ _id: req.AuthData, 'menu._id': Id }, { $push: { 'menu.$.products': { name, price, calori, preparationTime, commentary, photo } } }, { new: true, runValidators: true }).select('-_id menu')
         .then(data => {
@@ -110,7 +110,7 @@ router.put('/:cat/photo/:id', [upload.single('photo'), tokenVerify], (req, res) 
     if (!mongoose.Types.ObjectId.isValid(Id))
         return res.error('Geçersiz Id')
 
-    const photo = req.file?.filename
+    const photo = req.file ? req.file.filename : false
     if (!photo)
         return res.error('Fotoğraf eksik ya da geçerli değil')
 
