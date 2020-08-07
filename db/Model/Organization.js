@@ -53,8 +53,7 @@ const OrganizationSchema = new Schema({
     validate: [isMobilePhone, 'Geçersiz email'],
   },
   photo: {
-    type: String,
-    default: 'ornekOrganization'
+    type: Buffer,
   },
   date: {
     type: Date,

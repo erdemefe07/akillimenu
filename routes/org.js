@@ -70,7 +70,9 @@ router.put('/', [upload.single('photo'), tokenVerify], (req, res) => {
   if (!photo)
     return res.error('Fotoğraf bulunamadı')
 
-  photo = photo.filename
+  // photo = photo.filename
+
+  photo = fs.readFileSync(req.file.path)
 
   Organization.findByIdAndUpdate(req.AuthData, { photo }, { runValidators: true }).select('-_id photo')
     .then(data => {
