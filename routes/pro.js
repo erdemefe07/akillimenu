@@ -6,7 +6,7 @@ const tokenVerify = require('../helpers/jwt').verify
 const fs = require('fs')
 const path = require('path')
 const multer = require('multer')
-const upload = multer({ dest: 'uploads/', limits: { fileSize: 2097152 } })
+const upload = multer({ limits: { fileSize: 2097152 } })
 
 router.get('/:org/:cat/:id', (req, res) => {
     const org = req.params.org
@@ -50,13 +50,36 @@ router.post('/:cat', [upload.single('photo'), tokenVerify], (req, res) => {
     if (!name || !price || price < 0 || calori < 0 || !preparationTime || preparationTime < 0)
         return res.error('Bazı alanlar geçersiz.')
 
-    const photo = req.file ? req.file.filename : 'ornekProduct'
-
-    Organization.findOneAndUpdate({ _id: req.AuthData, 'menu._id': Id }, { $push: { 'menu.$.products': { name, price, calori, preparationTime, commentary, photo } } }, { new: true, runValidators: true }).select('-_id menu')
-        .then(data => {
+    Organization.findOne({ _id: req.AuthData, 'menu._id': Id }).select('menu')
+        .then(async data => {
             if (!data)
                 return res.error('Kategori bulunamadı')
-            res.json({ ok: true })
+
+            let _Photo
+            if (!req.file)
+                data.menu.id(Id).products.push({ name, price, calori, preparationTime, commentary })
+            else {
+                await res.ResimYukle(req.file)
+                    .then(result => {
+                        data.menu.id(Id).products.push({ name, price, calori, preparationTime, commentary, photo: result.data })
+                        _Photo = result.data
+                    })
+                    .catch(err => {
+                        return res.json(err)
+                    })
+            }
+
+            data.save()
+                .then(data => {
+                    if (!data)
+                        return res.error('', { message: 'Ürün eklerken hata meydana geldi. Lütfen kaynak koduna göz atınız.', name: 'Bilinmeyen Kaynaklı Hata' })
+                    const _data = data.menu.id(Id).products
+                    const productId = _data[_data.length - 1]._id
+                    res.json({ ok: true, _id: data._id, categoryId: Id, productId, photo: _Photo })
+                })
+                .catch(err => {
+                    return res.error(err.message)
+                })
         })
         .catch(err => {
             res.error('', err)
@@ -110,27 +133,38 @@ router.put('/:cat/photo/:id', [upload.single('photo'), tokenVerify], (req, res) 
     if (!mongoose.Types.ObjectId.isValid(Id))
         return res.error('Geçersiz Id')
 
-    const photo = req.file ? req.file.filename : false
-    if (!photo)
-        return res.error('Fotoğraf eksik ya da geçerli değil')
-
     Organization.findOne({ _id: req.AuthData, 'menu._id': cat, 'menu.products._id': Id }, 'menu')
-        .then(data => {
+        .then(async data => {
             if (!data)
                 return res.error('Bulunamadı')
-            var eskiPhoto = data.menu.id(cat).products.id(Id).photo
-            data.menu.id(cat).products.id(Id).photo = photo
+
+            const ProductPhoto = data.menu.id(cat).products.id(Id).photo
+            if (ProductPhoto == 'ornekProduct') {
+                await res.ResimYukle(req.file)
+                    .then(result => {
+                        _Photo = result.data
+                        data.menu.id(cat).products.id(Id).photo = result.data
+                    })
+                    .catch(err => {
+                        return res.json(err)
+                    })
+            }
+            else {
+                await res.ResimDegistir(ProductPhoto, req.file)
+                    .then(result => {
+                        _Photo = result.data
+                        data.menu.id(cat).products.id(Id).photo = result.data
+                    })
+                    .catch(err => {
+                        return res.json(err)
+                    })
+            }
 
             data.save()
                 .then(data => {
                     if (!data)
                         return res.error('', { message: 'Ürün düzenlerken hata meydana geldi. Lütfen kaynak koduna göz atınız.', name: 'Bilinmeyen Kaynaklı Hata' })
-                    res.json({ ok: true })
-
-                    if (eskiPhoto != 'ornekProduct') {
-                        fs.unlink(path.join(__dirname, '/../uploads/' + eskiPhoto), (err) => {
-                        })
-                    }
+                    res.json({ ok: true, photo: _Photo })
                 })
                 .catch(err => {
                     return res.error(err.message)
@@ -155,12 +189,13 @@ router.delete('/:cat/:id', tokenVerify, (req, res) => {
             if (!data)
                 return res.error('Bulunamadı')
             const category = data.menu.find(x => x._id == cat)
-            const product = category.products.findIndex(x => x._id == Id)
+            const product = category.products.find(x => x._id == Id)
 
-            if (product == -1)
+            if (!product)
                 return res.error('Kategori ve ürün eşleşmiyor.')
-
             res.json({ ok: true })
+
+            res.ResimSil(product.photo)
         })
         .catch(err => {
             res.error('', err)

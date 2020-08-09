@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <form onsubmit="return">
+        <label for="file" onchange="changeFile()">File</label>
+        <br>
+        <input type="file" id="file" name="file" accept="image/*">
+        <br>
+        <br>
+    </form>
+    <img id="resm">
+    <button value="Submit" onclick="asd()">tıkla</button>
+
+    <script>
+        function changeFile() {
+            console.log('ok')
+            const input = document.querySelector('input');
+            var file = input.files[0];
+            var reader = new FileReader();
+            var resim = document.getElementById('resm')
+            var merba =  reader.readAsArrayBuffer(file);
+            console.log(merba)
+            resim.src = URL.createObjectURL(file);
+            console.log('ok')
+        }
+    </script>
+</body>
+
+</html>

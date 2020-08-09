@@ -25,7 +25,8 @@ const ProductSchema = new Schema({
     required: [true, '{PATH} girilmesi zorunludur']
   },
   photo: {
-    type: String
+    type: String,
+    default: 'ornekProduct'
   },
   commentary: {
     type: String,

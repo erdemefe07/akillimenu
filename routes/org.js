@@ -1,7 +1,5 @@
 const express = require('express')
 const router = express.Router()
-const fs = require('fs')
-const path = require('path')
 const mongoose = require('mongoose')
 const Organization = require('../db/Model/Organization.js')
 const tokenVerify = require('../helpers/jwt').verify
@@ -9,8 +7,16 @@ const signToken = require('../helpers/jwt').sign
 const bcrypt = require('bcrypt')
 const { isEmail } = require('validator')
 const Tokens = require('../db/redis.js')
+const path = require('path')
 const multer = require('multer')
-const upload = multer({ dest: 'uploads/', limits: { fileSize: 2097152 } })
+const upload = multer({
+  limits: { fileSize: 2097152 }, fileFilter: function (req, file, callback) {
+    const mime = file.mimetype
+    if (mime != 'image/png' || mime != 'image/jpeg')
+      return callback('Sadece resim dosyaları kabul edilir')
+    callback(null, true)
+  },
+})
 
 router.get('/', (req, res) => {
   Organization.find()
@@ -66,23 +72,42 @@ router.post('/', (req, res) => {
 })
 
 router.put('/', [upload.single('photo'), tokenVerify], (req, res) => {
-  let photo = req.file
-  if (!photo)
-    return res.error('Fotoğraf bulunamadı')
-
-  photo = photo.filename
-
-  Organization.findByIdAndUpdate(req.AuthData, { photo }, { runValidators: true }).select('-_id photo')
-    .then(data => {
+  Organization.findById(req.AuthData).select('photo')
+    .then(async data => {
       if (!data)
         return res.error('', { message: 'İşletme fotoğrafı değiştirirken hata meydana geldi. Lütfen kaynak koduna göz atınız.', name: 'Bilinmeyen Kaynaklı Hata' })
 
-      res.json({ ok: true })
-
-      if (data.photo != 'ornekOrganization') {
-        fs.unlink(path.join(__dirname, '/../uploads/' + data.photo), (err) => {
-        })
+      let _Photo
+      if (data.photo == 'ornekOrganization') {
+        await res.ResimYukle(req.file)
+          .then(result => {
+            data.photo = result.data
+            _Photo = result.data
+          })
+          .catch(err => {
+            return res.json(err)
+          })
       }
+      else {
+        await res.ResimDegistir(data.photo, req.file)
+          .then(result => {
+            data.photo = result.data
+            _Photo = result.data
+          })
+          .catch(err => {
+            return res.json(err)
+          })
+      }
+
+      data.save()
+        .then(data => {
+          if (!data)
+            return res.error('', { message: 'Resim yüklerken hata meydana geldi. Lütfen kaynak koduna göz atınız.', name: 'Bilinmeyen Kaynaklı Hata' })
+          res.json({ ok: true, photo: _Photo })
+        })
+        .catch(err => {
+          return res.error(err.message)
+        })
     })
     .catch(err => {
       res.error('', err)

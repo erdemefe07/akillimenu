@@ -41,6 +41,7 @@ app.response.error = function (message, err) {
     if (message == '')
         message = 'Bilinmeyen Hata'
     if (err) {
+        console.log('Hata Meydana Geldi')
         new ErrorLog({
             path: this.req.originalUrl,
             method: this.req.method,
@@ -55,6 +56,43 @@ app.response.error = function (message, err) {
     return this.status(500).send({ ok: false, message })
 }
 
+const Photo = require('./db/Model/Photo.js');
+
+app.response.ResimYukle = (image) => {
+    return new Promise((resolve, reject) => {
+        if (!image)
+            return reject({ ok: false, msg: "Resim Gönderilmemiş" })
+
+        image = image.buffer
+
+        const foto = new Photo({ photo: image })
+        foto.save()
+            .then(data => resolve({ ok: true, data: data._id }))
+            .catch(err => reject({ ok: false, msg: err }))
+    })
+
+}
+
+app.response.ResimSil = function (id) {
+    Photo.findByIdAndDelete(id)
+        .then(ok => { })
+        .catch(err => { })
+}
+
+app.response.ResimDegistir = (id, image) => {
+    return new Promise((resolve, reject) => {
+        if (!image)
+            return reject({ ok: false, msg: "Resim Gönderilmemiş" })
+
+        image = image.buffer
+
+        Photo.findByIdAndUpdate(id, { photo: image })
+            .then(data => resolve({ ok: true, data: data._id }))
+            .catch(err => reject({ ok: false, msg: err.message }))
+    })
+}
+
+
 app.io = io
 
 app.use(express.json())
@@ -67,20 +105,34 @@ const proRoute = require('./routes/pro')
 const ordRoute = require('./routes/ord');
 const tabRoute = require('./routes/tab');
 
+const multer = require('multer')
+const upload = multer({
+    limits: { fileSize: 2097152 }, fileFilter: function (req, file, callback) {
+        var ext = path.extname(file.originalname);
+        if (ext !== '.png' && ext !== '.jpg' && ext !== '.jpeg') {
+            return callback(new Error('Only images are allowed'))
+        }
+        callback(null, true)
+    },
+})
+
+app.get('/test', upload.single('photo'), (req, res) => {
+
+})
 app.use('/org', orgRoute)
 app.use('/cat', catRoute)
 app.use('/pro', proRoute)
 app.use('/ord', ordRoute)
 app.use('/tab', tabRoute)
 app.get('/photos/:id', (req, res) => {
-    try {
-        const resim = fs.readFileSync('./uploads/' + req.params.id)
-        res.contentType('image/jpeg');
-        res.send(resim)
-    } catch (error) {
-        res.send('Bulunamadı')
-    }
-
+    Photo.findById(req.params.id)
+        .then(data => {
+            if (!data)
+                return res.json({ ok: false })
+            res.contentType('image/jpeg');
+            res.send(data.photo)
+        })
+        .catch(err => res.json({ ok: false }))
 })
 
 server.listen(process.env.PORT, () => console.log(`http://localhost:${process.env.PORT}`))

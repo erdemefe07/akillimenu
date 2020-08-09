@@ -9,7 +9,8 @@ const CategorySchema = new Schema({
     required: [true, '{PATH} girilmesi zorunludur']
   },
   photo: {
-    type: String
+    type: String,
+    default: 'ornekCategory'
   },
   products: [ProductSchema]
 })
