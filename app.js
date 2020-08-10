@@ -1,6 +1,5 @@
 require('dotenv').config()
 const cors = require('cors')
-const fs = require('fs');
 
 // Database Connections, Models
 require('./db/connection.js')()
@@ -70,7 +69,6 @@ app.response.ResimYukle = (image) => {
             .then(data => resolve({ ok: true, data: data._id }))
             .catch(err => reject({ ok: false, msg: err }))
     })
-
 }
 
 app.response.ResimSil = function (id) {
@@ -92,12 +90,12 @@ app.response.ResimDegistir = (id, image) => {
     })
 }
 
-
 app.io = io
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(express.static('static'))
+app.use(cors())
 
 const orgRoute = require('./routes/org')
 const catRoute = require('./routes/cat')
