@@ -41,6 +41,36 @@ router.get('/:org/:cat/:id', (req, res) => {
         })
 })
 
+router.get('/:cat/:id', tokenVerify, (req, res) => {
+    const cat = req.params.cat
+    const Id = req.params.id
+
+    if (!mongoose.Types.ObjectId.isValid(cat))
+        return res.error('Geçersiz Kategori Id`si')
+
+    if (!mongoose.Types.ObjectId.isValid(Id))
+        return res.error('Geçersiz Ürün Id`si')
+
+    Organization.findById(req.AuthData, '-_id menu')
+        .then(data => {
+            if (!data)
+                return res.error('İşletme bulunamadı')
+
+            const category = data.menu.find(x => x._id == cat)
+            if (!category)
+                return res.error('Kategori bulunamadı')
+
+            const product = category.products.find(x => x._id == Id)
+            if (!product)
+                return res.error('Ürün bulunamadı')
+
+            res.json(product)
+        })
+        .catch(err => {
+            res.error('', err)
+        })
+})
+
 router.post('/:cat', [upload.single('photo'), tokenVerify], (req, res) => {
     const Id = req.params.cat
     if (!mongoose.Types.ObjectId.isValid(Id))
