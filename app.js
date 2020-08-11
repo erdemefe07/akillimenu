@@ -1,5 +1,6 @@
 require('dotenv').config()
 const cors = require('cors')
+const fs = require('fs')
 
 // Database Connections, Models
 require('./db/connection.js')()
@@ -103,26 +104,27 @@ const proRoute = require('./routes/pro')
 const ordRoute = require('./routes/ord');
 const tabRoute = require('./routes/tab');
 
-const multer = require('multer')
-const upload = multer({
-    limits: { fileSize: 2097152 }, fileFilter: function (req, file, callback) {
-        var ext = path.extname(file.originalname);
-        if (ext !== '.png' && ext !== '.jpg' && ext !== '.jpeg') {
-            return callback(new Error('Only images are allowed'))
-        }
-        callback(null, true)
-    },
-})
-
-app.get('/test', upload.single('photo'), (req, res) => {
-
-})
 app.use('/org', orgRoute)
 app.use('/cat', catRoute)
 app.use('/pro', proRoute)
 app.use('/ord', ordRoute)
 app.use('/tab', tabRoute)
 app.get('/photos/:id', (req, res) => {
+    switch (req.params.id) {
+        case "ornekOrganization":
+            res.contentType('image/jpeg');
+            return res.send(fs.readFileSync("./uploads/ornekOrganization"))
+
+        case "ornekCategory":
+            res.contentType('image/jpeg');
+            return res.send(fs.readFileSync("./uploads/ornekCategory"))
+
+        case "ornekProduct":
+            res.contentType('image/jpeg');
+            return res.send(fs.readFileSync("./uploads/ornekProduct"))
+    }
+
+
     Photo.findById(req.params.id)
         .then(data => {
             if (!data)

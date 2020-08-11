@@ -3,10 +3,7 @@ const router = express.Router()
 const mongoose = require('mongoose')
 const Organization = require('../db/Model/Organization.js')
 const tokenVerify = require('../helpers/jwt').verify
-const fs = require('fs')
-const path = require('path')
-const multer = require('multer')
-const upload = multer({ limits: { fileSize: 2097152 } })
+const upload = require('../helpers/multer')
 
 router.get('/:org/:cat/:id', (req, res) => {
     const org = req.params.org

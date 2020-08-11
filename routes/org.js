@@ -1,22 +1,15 @@
 const express = require('express')
 const router = express.Router()
-const mongoose = require('mongoose')
-const Organization = require('../db/Model/Organization.js')
-const tokenVerify = require('../helpers/jwt').verify
-const signToken = require('../helpers/jwt').sign
 const bcrypt = require('bcrypt')
 const { isEmail } = require('validator')
+const mongoose = require('mongoose')
+
+const Organization = require('../db/Model/Organization.js')
 const Tokens = require('../db/redis.js')
-const path = require('path')
-const multer = require('multer')
-const upload = multer({
-  limits: { fileSize: 2097152 }, fileFilter: function (req, file, callback) {
-    const mime = file.mimetype
-    if (mime != 'image/png' || mime != 'image/jpeg')
-      return callback('Sadece resim dosyaları kabul edilir')
-    callback(null, true)
-  },
-})
+
+const tokenVerify = require('../helpers/jwt').verify
+const signToken = require('../helpers/jwt').sign
+const upload = require('../helpers/multer')
 
 router.get('/', (req, res) => {
   Organization.find()

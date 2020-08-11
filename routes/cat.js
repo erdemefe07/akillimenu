@@ -1,11 +1,11 @@
 const express = require('express')
 const router = express.Router()
+
 const mongoose = require('mongoose')
 const Organization = require('../db/Model/Organization.js')
+
 const tokenVerify = require('../helpers/jwt').verify
-const multer = require('multer')
-const upload = multer({
-  limits: { fileSize: 2097152 }})
+const upload = require('../helpers/multer')
 
 router.get('/org/:id', (req, res) => {
   const Id = req.params.id
@@ -36,9 +36,6 @@ router.get('/:id', (req, res) => {
       res.error('', err)
     })
 })
-
-// ! ------ POST------ POST ------ POST ------ POST ------ POST ------ POST------
-
 
 router.post('/', [upload.single('photo'), tokenVerify], (req, res) => {
   const name = req.body.name
