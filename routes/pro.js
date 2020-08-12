@@ -127,7 +127,7 @@ router.put('/:cat/:id', [upload.single('photo'), tokenVerify], (req, res) => {
         return res.error('Bazı alanlar geçersiz.')
 
     Organization.findOne({ _id: req.AuthData, 'menu._id': cat, 'menu.products._id': Id }, 'menu')
-        .then(data => {
+        .then(async data => {
             if (!data)
                 return res.error('Bulunamadı')
             data.menu.id(cat).products.id(Id).name = name
