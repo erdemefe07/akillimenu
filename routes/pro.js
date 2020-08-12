@@ -113,7 +113,7 @@ router.post('/:cat', [upload.single('photo'), tokenVerify], (req, res) => {
         })
 })
 
-router.put('/:cat/:id', tokenVerify, (req, res) => {
+router.put('/:cat/:id', [upload.single('photo'), tokenVerify], (req, res) => {
     const cat = req.params.cat
     if (!mongoose.Types.ObjectId.isValid(cat))
         return res.error('Geçersiz Kategori Id`si')
@@ -136,11 +136,36 @@ router.put('/:cat/:id', tokenVerify, (req, res) => {
             data.menu.id(cat).products.id(Id).preparationTime = preparationTime
             data.menu.id(cat).products.id(Id).commentary = commentary
 
+            const ProductPhoto = data.menu.id(cat).products.id(Id).photo
+            let _Photo = ProductPhoto
+            if (req.file) {
+                if (ProductPhoto == 'ornekProduct') {
+                    await res.ResimYukle(req.file)
+                        .then(result => {
+                            _Photo = result.data
+                            data.menu.id(cat).products.id(Id).photo = result.data
+                        })
+                        .catch(err => {
+                            return res.json(err)
+                        })
+                }
+                else {
+                    await res.ResimDegistir(ProductPhoto, req.file)
+                        .then(result => {
+                            _Photo = result.data
+                            data.menu.id(cat).products.id(Id).photo = result.data
+                        })
+                        .catch(err => {
+                            return res.json(err)
+                        })
+                }
+            }
+
             data.save()
                 .then(data => {
                     if (!data)
                         return res.error('', { message: 'Ürün düzenlerken hata meydana geldi. Lütfen kaynak koduna göz atınız.', name: 'Bilinmeyen Kaynaklı Hata' })
-                    res.json({ ok: true })
+                    res.json({ ok: true, photo: _Photo })
                 })
                 .catch(err => {
                     return res.error(err.message)
@@ -165,6 +190,7 @@ router.put('/:cat/photo/:id', [upload.single('photo'), tokenVerify], (req, res) 
             if (!data)
                 return res.error('Bulunamadı')
 
+            let _Photo = "ornekProduct"
             const ProductPhoto = data.menu.id(cat).products.id(Id).photo
             if (ProductPhoto == 'ornekProduct') {
                 await res.ResimYukle(req.file)

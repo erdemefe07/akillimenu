@@ -94,7 +94,7 @@ router.put('/:id', [upload.single('photo'), tokenVerify], (req, res) => {
 
       data.menu.id(Id).name = name
 
-      let _Photo = 'ornekCategory'
+      let _Photo = data.menu.id(Id).photo
       if (req.file) {
         if (data.menu.id(Id).photo == 'ornekCategory') {
           await res.ResimYukle(req.file)
@@ -130,53 +130,6 @@ router.put('/:id', [upload.single('photo'), tokenVerify], (req, res) => {
     })
     .catch(err => {
       res.error('', err)
-    })
-})
-
-router.put('/photo/:id', [upload.single('photo'), tokenVerify], (req, res) => {
-  const Id = req.params.id
-  if (!mongoose.Types.ObjectId.isValid(Id))
-    return res.error('Geçersiz Id')
-
-  Organization.findOne({ _id: req.AuthData, 'menu._id': Id }).select('menu')
-    .then(async data => {
-      if (!data)
-        return res.error('Kategori bulunamadı')
-
-      let _Photo
-      if (data.menu.id(Id).photo == 'ornekCategory') {
-        await res.ResimYukle(req.file)
-          .then(result => {
-            _Photo = result.data
-            data.menu.id(Id).photo = result.data
-          })
-          .catch(err => {
-            return res.json(err)
-          })
-      }
-      else {
-        await res.ResimDegistir(data.menu.id(Id).photo, req.file)
-          .then(result => {
-            _Photo = result.data
-            data.menu.id(Id).photo = result.data
-          })
-          .catch(err => {
-            return res.json(err)
-          })
-      }
-
-      data.save()
-        .then(data => {
-          if (!data)
-            return res.error('', { message: 'Resim yüklerken hata meydana geldi. Lütfen kaynak koduna göz atınız.', name: 'Bilinmeyen Kaynaklı Hata' })
-          res.json({ ok: true, photo: _Photo })
-        })
-        .catch(err => {
-          return res.error(err.message)
-        })
-    })
-    .catch(err => {
-      return res.error('', err)
     })
 })
 
