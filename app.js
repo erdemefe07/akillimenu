@@ -138,36 +138,3 @@ app.get('/photos/:id', (req, res) => {
 server.listen(process.env.PORT, () => console.log(`http://localhost:${process.env.PORT}`))
 
 module.exports = app
-
-
-// ------------ EASIQL ------------ \\
-
-// const maintains = {
-//     'Organization': {
-//         fields: ['name', 'email', '_id'],
-//         resolver: () => {
-//             return Organization.find().then(data => data)
-//         }
-//     }
-// }
-
-// app.use(async (req, res, next) => {
-//     const reso = req.body.org
-//     const wants = req.body.fields
-//     if (reso == 'Organization') {
-//         const returned = await maintains.Organization.resolver()
-
-//         const aio = []
-//         if (Array.isArray(returned)) {
-//             for (let i = 0; i < returned.length; i++) {
-//                 const item = {}
-//                 for (let j = 0; j < wants.length; j++)
-//                     item[wants[j]] = returned[i][wants[j]]
-//                 aio.push(item)
-//             }
-//         }
-//         res.json(aio)
-
-//     }
-
-// })

@@ -3,7 +3,24 @@ const router = express.Router()
 const mongoose = require('mongoose')
 const Organization = require('../db/Model/Organization.js')
 
+// {
+//     "org": "5f2c695be052e1001732f3af",
+//     "cat": [
+//         {
+//             "id": "5f2c6a97e052e1001732f3b0",
+//             "products": [
+//                 {
+//                     "id": "5f2c6b87e052e1001732f3b1",
+//                     "table": 22,
+//                     "count": 4,
+//                     "comment": "this is my comment"
+//                 }
+//             ]
+//         }
+//     ]
+// }
 router.get('/', async (req, res) => {
+
     const response = []
 
     const { org, cat } = req.body
@@ -19,7 +36,9 @@ router.get('/', async (req, res) => {
     if (!Array.isArray(cat) || cat.length < 1) {
         return res.error('Kategori beklenen şekilde değil')
     }
+
     let error = false
+
     cat.forEach(x => {
         if (!mongoose.Types.ObjectId.isValid(x.id))
             return error = 'Geçersiz Kategori Id`si'

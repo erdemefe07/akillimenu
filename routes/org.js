@@ -175,5 +175,35 @@ router.post('/resetPassword', tokenVerify, async (req, res) => {
     })
 })
 
+router.post('/refreshToken', tokenVerify, async (req, res) => {
+  const { password } = req.body
+  if (!password)
+    return res.error('Şifre girilmemiş')
+
+  const organization = await Organization.findById(req.AuthData, 'password')
+
+  if (!await bcrypt.compare(password, organization.password)) {
+    return res.error('Şifre yanlış')
+  }
+
+  organization.password = password
+
+  organization.save()
+    .then(data => {
+      signToken(req.AuthData)
+        .then(data => {
+          if (data) {
+            Tokens.set(String(req.AuthData), data)
+            return res.json({ ok: true, token: data })
+          }
+          return res.error('', err)
+        })
+        .catch(err => res.error('', err))
+    })
+    .catch(err => {
+      return res.error(err.message)
+    })
+})
+
 
 module.exports = router

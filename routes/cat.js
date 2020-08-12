@@ -78,7 +78,7 @@ router.post('/', [upload.single('photo'), tokenVerify], (req, res) => {
     })
 })
 
-router.put('/:id', tokenVerify, (req, res) => {
+router.put('/:id', [upload.single('photo'), tokenVerify], (req, res) => {
   const Id = req.params.id
   if (!mongoose.Types.ObjectId.isValid(Id))
     return res.error('Geçersiz Id')
@@ -87,11 +87,46 @@ router.put('/:id', tokenVerify, (req, res) => {
   if (!name)
     return res.error('İsim alanı boş olamaz')
 
-  Organization.findOneAndUpdate({ _id: req.AuthData, 'menu._id': Id }, { $set: { 'menu.$.name': name } }, { new: true, runValidators: true })
-    .then(data => {
+  Organization.findOne({ _id: req.AuthData, 'menu._id': Id })
+    .then(async data => {
       if (!data)
         return res.error('Kategori bulunamadı')
-      return res.json({ ok: true })
+
+      data.menu.id(Id).name = name
+
+      let _Photo = 'ornekCategory'
+      if (req.file) {
+        if (data.menu.id(Id).photo == 'ornekCategory') {
+          await res.ResimYukle(req.file)
+            .then(result => {
+              _Photo = result.data
+              data.menu.id(Id).photo = result.data
+            })
+            .catch(err => {
+              return res.json(err)
+            })
+        }
+        else {
+          await res.ResimDegistir(data.menu.id(Id).photo, req.file)
+            .then(result => {
+              _Photo = result.data
+              data.menu.id(Id).photo = result.data
+            })
+            .catch(err => {
+              return res.json(err)
+            })
+        }
+      }
+
+      data.save()
+        .then(data => {
+          if (!data)
+            return res.error('', { message: 'Kategori Düzenlerken hata meydana geldi. Lütfen kaynak koduna göz atınız.', name: 'Bilinmeyen Kaynaklı Hata' })
+          res.json({ ok: true, photo: _Photo })
+        })
+        .catch(err => {
+          return res.error(err.message)
+        })
     })
     .catch(err => {
       res.error('', err)
