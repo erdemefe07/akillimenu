@@ -1,6 +1,7 @@
 require('dotenv').config()
 const cors = require('cors')
 const fs = require('fs')
+const sharp = require('sharp')
 
 // Database Connections, Models
 require('./db/connection.js')()
@@ -53,17 +54,25 @@ app.response.error = function (message, err) {
             message: err.message
         }).save()
     }
+    console.log('ERROR DONDURULDU', message)
     return this.status(500).send({ ok: false, message })
 }
 
 const Photo = require('./db/Model/Photo.js');
+
+function OptimizeEt(photo) {
+    return sharp(photo)
+        .clone()
+        .jpeg({ quality: 80 })
+        .toBuffer()
+}
 
 app.response.ResimYukle = (image) => {
     return new Promise((resolve, reject) => {
         if (!image)
             return reject({ ok: false, msg: "Resim Gönderilmemiş" })
 
-        image = image.buffer
+        image = OptimizeEt(image.buffer)
 
         const foto = new Photo({ photo: image })
         foto.save()
@@ -83,11 +92,12 @@ app.response.ResimDegistir = (id, image) => {
         if (!image)
             return reject({ ok: false, msg: "Resim Gönderilmemiş" })
 
-        image = image.buffer
-
-        Photo.findByIdAndUpdate(id, { photo: image })
-            .then(data => resolve({ ok: true, data: data._id }))
-            .catch(err => reject({ ok: false, msg: err.message }))
+        OptimizeEt(image.buffer)
+            .then(data => {
+                Photo.findByIdAndUpdate(id, { photo: data })
+                    .then(data => resolve({ ok: true, data: data._id }))
+                    .catch(err => reject({ ok: false, msg: err.message }))
+            })
     })
 }
 

@@ -1,6 +1,6 @@
 const multer = require('multer')
 module.exports = multer({
-  limits: { fileSize: 2097152 },
+  limits: { fileSize: 10485760 }, // 10 mb
   fileFilter: function (req, file, callback) {
     const mime = file.mimetype
     if (mime == 'image/png' || mime == 'image/jpeg')

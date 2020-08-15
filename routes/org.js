@@ -107,6 +107,16 @@ router.put('/', [upload.single('photo'), tokenVerify], (req, res) => {
     })
 })
 
+router.put('/settings', tokenVerify, (req, res) => {
+  Organization.findByIdAndUpdate(req.AuthData, { settings: req.body }, { new: true }).select("settings")
+    .then(data => {
+      res.json(data)
+    })
+    .catch(err => {
+      res.error('', err)
+    })
+})
+
 router.post('/login', async (req, res) => {
   const { username, password } = req.body
   if (!username || !password)

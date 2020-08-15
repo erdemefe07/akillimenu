@@ -130,6 +130,7 @@ router.put('/:cat/:id', [upload.single('photo'), tokenVerify], (req, res) => {
         .then(async data => {
             if (!data)
                 return res.error('Bulunamadı')
+
             data.menu.id(cat).products.id(Id).name = name
             data.menu.id(cat).products.id(Id).price = price
             data.menu.id(cat).products.id(Id).calori = calori
