@@ -5,13 +5,13 @@ const Organization = require('../db/Model/Organization.js')
 
 // {
 //     "org": "5f2c695be052e1001732f3af",
+//     "table": "5f2c695be052e1001732f3af",
 //     "cat": [
 //         {
 //             "id": "5f2c6a97e052e1001732f3b0",
 //             "products": [
 //                 {
 //                     "id": "5f2c6b87e052e1001732f3b1",
-//                     "table": 22,
 //                     "count": 4,
 //                     "comment": "this is my comment"
 //                 }
@@ -19,19 +19,27 @@ const Organization = require('../db/Model/Organization.js')
 //         }
 //     ]
 // }
-router.get('/', async (req, res) => {
-
+router.post('/', async (req, res) => {
     const response = []
 
-    const { org, cat } = req.body
-    if (!org || !cat)
+    const { org, cat, table } = req.body
+    if (!org || !cat || !table)
         return res.error('Bazı alanlar boş')
+
     if (!mongoose.Types.ObjectId.isValid(org))
         return res.error('Geçersiz İşletme Id`si')
 
-    const _ = await Organization.findById(org, 'menu')
+    if (!mongoose.Types.ObjectId.isValid(table))
+        return res.error('Geçersiz Masa')
+
+    const _ = await Organization.findById(org, 'menu tables')
     if (!_)
         return res.error('İşletme Bulunamadı')
+
+    const masa = _.tables.find(x => x._id == table)
+    if (!masa) {
+        return res.error('Masa Bulunamadı')
+    }
 
     if (!Array.isArray(cat) || cat.length < 1) {
         return res.error('Kategori beklenen şekilde değil')
@@ -55,9 +63,6 @@ router.get('/', async (req, res) => {
             if (!mongoose.Types.ObjectId.isValid(y.id))
                 return error = 'Geçersiz Ürün Id`si'
 
-            if (typeof y.table != 'number')
-                return error = 'Geçersiz Masa'
-
             if (typeof y.count != 'number' || y.count < 1)
                 return error = 'Geçersiz Ürün Miktarı'
 
@@ -72,6 +77,7 @@ router.get('/', async (req, res) => {
             prod.push({ ürün: product.name, miktar: y.count, açıklama: y.comment })
         })
         response.push({
+            masa: masa.No,
             kategori: kategori.name,
             ürünler: prod
         })
