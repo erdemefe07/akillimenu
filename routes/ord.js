@@ -86,7 +86,7 @@ router.post('/', async (req, res) => {
     if (error)
         return res.error(error)
 
-    req.app.io.to(org).emit('data', JSON.stringify(response, null, 2))
+    req.app.io.to(org).emit('data', JSON.stringify({ masa, response }, null, 2))
 
     return res.json({ masa, response })
 })
