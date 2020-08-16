@@ -77,7 +77,6 @@ router.post('/', async (req, res) => {
             prod.push({ ürün: product.name, miktar: y.count, açıklama: y.comment })
         })
         response.push({
-            masa: masa.No,
             kategori: kategori.name,
             ürünler: prod
         })
@@ -88,7 +87,7 @@ router.post('/', async (req, res) => {
 
     req.app.io.to(org).emit('data', JSON.stringify(response, null, 2))
 
-    return res.json(response)
+    return res.json({ masa, response })
 })
 
 module.exports = router
