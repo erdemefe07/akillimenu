@@ -74,7 +74,7 @@ router.post('/', async (req, res) => {
             if (!product)
                 return error = 'Ürün bulunamadı'
 
-            prod.push({ ürün: product.name, ürünId: product._id, fiyat: product.price, miktar: y.count, açıklama: y.comment })
+            prod.push({ ürün: product.name, ürünId: product._id, fiyat: product.price, hazirlanmaSuresi: product.preparationTime, miktar: y.count, açıklama: y.comment })
         })
         response.push({
             kategoriId: kategori._id,
