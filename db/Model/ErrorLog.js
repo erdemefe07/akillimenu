@@ -2,7 +2,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
-const ErrorLognSchema = new Schema({
+const ErrorLogSchema = new Schema({
     path: String,
     method: String,
     reqData: Schema.Types.Mixed,
@@ -14,5 +14,5 @@ const ErrorLognSchema = new Schema({
     },
 })
 
-module.exports = mongoose.model('ErrorLog', ErrorLognSchema)
+module.exports = mongoose.model('ErrorLog', ErrorLogSchema)
 mongoose.Promise = global.Promise

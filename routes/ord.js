@@ -2,6 +2,9 @@ const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
 const Organization = require('../db/Model/Organization.js')
+const tokenVerify = require('../helpers/jwt').verify
+const Orders = require('../db/redis')
+const Order = require('../db/Model/Order')
 
 // {
 //     "org": "5f2c695be052e1001732f3af",
@@ -19,6 +22,26 @@ const Organization = require('../db/Model/Organization.js')
 //         }
 //     ]
 // }
+router.get('/', tokenVerify, async (req, res) => {
+    const siparis = await Orders.GetOrder(req.AuthData)
+    const dondurulcek = []
+    const length = siparis.length;
+    for (let i = 0; i < length; i++) {
+        dondurulcek.push(JSON.parse(siparis[i]));
+    }
+    res.json(dondurulcek)
+})
+
+router.delete('/', tokenVerify, async (req, res) => {
+    const siparis = await Orders.GetOrderIndex(req.AuthData, req.body.del)
+    const suan = new Date()
+    const date = suan.getDate() + "-" + suan.getMonth() + "-" + suan.getFullYear()
+    new Order({ orgId: req.AuthData, date, data: siparis }).save()
+
+    const silinecek = await Orders.DelOrder(req.AuthData, req.body.del)
+    res.json({ ok: !!silinecek })
+})
+
 router.post('/', async (req, res) => {
     const response = []
 
@@ -86,9 +109,10 @@ router.post('/', async (req, res) => {
     if (error)
         return res.error(error)
 
-    req.app.io.to(org).emit('data', JSON.stringify({ masa, response }, null, 2))
-
-    return res.json({ masa, response })
+    const son = { date: Date.now(), masa, response }
+    req.app.io.to(org).emit('data', JSON.stringify(son, null, 2))
+    Orders.SetOrder(org, JSON.stringify(son, null, 2))
+    return res.json(son)
 })
 
 module.exports = router
