@@ -23,12 +23,17 @@ const Order = require('../db/Model/Order')
 //     ]
 // }
 router.get('/', tokenVerify, async (req, res) => {
-    console.log("ok")
     const siparis = await Orders.GetOrder(req.AuthData)
     const dondurulcek = []
-    const length = siparis.length;
-    for (let i = 0; i < length; i++) {
-        dondurulcek.push(JSON.parse(siparis[i]));
+    // const length = siparis.length;
+    // for (let i = 0; i < length; i++) {
+    //     dondurulcek.push(JSON.parse(siparis[i]));
+    // }
+
+    // TODO json.parse console.log da normal gösteriyor res.jsonda object object gösteriyor
+    for (const [key, value] of Object.entries(siparis)) {
+        console.log("value", JSON.parse(value))
+        dondurulcek.push(`${key}: ${JSON.parse(value)}`);
     }
     res.json(dondurulcek)
 })
@@ -112,7 +117,7 @@ router.post('/', async (req, res) => {
 
     const son = { date: Date.now(), masa, response }
     req.app.io.to(org).emit('data', JSON.stringify(son, null, 2))
-    Orders.SetOrder(org, JSON.stringify(son, null, 2))
+    Orders.SetOrder(org, String(masa._id), JSON.stringify(son, null, 2))
     return res.json(son)
 })
 

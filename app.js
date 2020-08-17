@@ -5,6 +5,7 @@ const express = require('express')
 
 // Database Connections, Models
 require('./db/connection.js')()
+const Photo = require('../db/Model/Photo.js');
 
 const app = require("./config/app")
 const server = require("./config/socket").server
