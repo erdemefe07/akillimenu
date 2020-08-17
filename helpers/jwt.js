@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const Tokens = require('../db/redis.js')
+const Tokens = require('../db/RedisModel/Tokens')
 
 module.exports.verify = async (req, res, next) => {
     try {

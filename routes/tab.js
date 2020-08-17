@@ -35,6 +35,35 @@ router.post('/', tokenVerify, (req, res) => {
         })
 })
 
+router.post('/many', tokenVerify, (req, res) => {
+    const { No } = req.body
+    if (!No)
+        return res.error('No alanı boş olamaz')
+    if (typeof No != 'number')
+        return res.error('Geçersiz No')
+
+    Organization.findById(req.AuthData, 'tables')
+        .then(data => {
+            data.tables = []
+            for (let i = 1; i <= No; i++) {
+                data.tables.push({ No: i })
+            }
+            data.save()
+                .then(data => {
+                    if (!data)
+                        return res.error('', { message: 'Çoklu masa eklerken hata meydana geldi. Lütfen kaynak koduna göz atınız.', name: 'Bilinmeyen Kaynaklı Hata' })
+                    res.json({ ok: true, last: No })
+                })
+                .catch(err => {
+                    return res.error(err.message)
+                })
+        })
+        .catch(err => {
+            res.error('', err)
+        })
+})
+
+
 router.put('/:id', tokenVerify, (req, res) => {
     const Id = req.params.id
     if (!mongoose.Types.ObjectId.isValid(Id))

@@ -4,8 +4,8 @@ const bcrypt = require('bcrypt')
 const { isEmail } = require('validator')
 const mongoose = require('mongoose')
 
-const Organization = require('../db/Model/Organization.js')
-const Tokens = require('../db/redis.js')
+const Organization = require('../db/Model/Organization')
+const Tokens = require('../db/RedisModel/Tokens')
 
 const tokenVerify = require('../helpers/jwt').verify
 const signToken = require('../helpers/jwt').sign

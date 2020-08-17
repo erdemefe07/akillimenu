@@ -3,7 +3,7 @@ const router = express.Router()
 const mongoose = require('mongoose')
 const Organization = require('../db/Model/Organization.js')
 const tokenVerify = require('../helpers/jwt').verify
-const Orders = require('../db/redis')
+const Orders = require('../db/RedisModel/Orders')
 const Order = require('../db/Model/Order')
 
 // {
@@ -23,6 +23,7 @@ const Order = require('../db/Model/Order')
 //     ]
 // }
 router.get('/', tokenVerify, async (req, res) => {
+    console.log("ok")
     const siparis = await Orders.GetOrder(req.AuthData)
     const dondurulcek = []
     const length = siparis.length;
