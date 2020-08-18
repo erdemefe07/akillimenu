@@ -26,7 +26,6 @@ router.get('/', tokenVerify, async (req, res) => {
     const siparis = await Orders.GetOrder(req.AuthData)
     const dondurulcek = []
 
-    // TODO json.parse console.log da normal gösteriyor res.jsonda object object gösteriyor
     for (const [key, value] of Object.entries(siparis)) {
         console.log("value", JSON.parse(value))
         dondurulcek.push(`${key}: ${JSON.parse(value)}`);

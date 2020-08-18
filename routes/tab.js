@@ -6,6 +6,29 @@ const tokenVerify = require('../helpers/jwt').verify
 
 // ! ------ POST------ POST ------ POST ------ POST ------ POST ------ POST------
 
+router.get('/:org/:masa', (req, res) => {
+    let { org, masa } = req.params
+    if (!org || !masa)
+        return res.error('İşletme veya masa alanı boş olamaz')
+    if (!mongoose.Types.ObjectId.isValid(org))
+        return res.error('Geçersiz İşletme Id`si')
+    masa = Number(masa)
+    if (typeof masa != 'number')
+        return res.error('Geçersiz masa numarası')
+
+    Organization.findById(org, 'tables')
+        .then(data => {
+            const _masa = data.tables.find(x => x.No == masa)
+            if (!_masa)
+                return res.error('Böyle bir masa yok')
+            if (_masa)
+                return res.json({ ok: true, masa })
+        })
+        .catch(err => {
+            res.error('', err)
+        })
+})
+
 router.post('/', tokenVerify, (req, res) => {
     const { No } = req.body
     if (!No)
@@ -97,7 +120,7 @@ router.delete('/:id', tokenVerify, (req, res) => {
             if (!data)
                 return res.error('Masa Bulunamadı')
 
-                res.json({ ok: true })
+            res.json({ ok: true })
 
         })
 })
