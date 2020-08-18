@@ -66,7 +66,7 @@ router.post('/many', tokenVerify, (req, res) => {
 
 router.put('/:id', tokenVerify, (req, res) => {
     const Id = req.params.id
-    if (!mongoose.Types.ObjectId.isValid(Id))
+    if (typeof Id == !'number')
         return res.error('Geçersiz Id')
 
     const { No } = req.body
@@ -75,7 +75,7 @@ router.put('/:id', tokenVerify, (req, res) => {
     if (typeof No != 'number')
         return res.error('Geçersiz No')
 
-    Organization.findOneAndUpdate({ _id: req.AuthData, 'tables._id': Id }, { $set: { 'tables.$.No': No } }, { new: true, runValidators: true })
+    Organization.findOneAndUpdate({ _id: req.AuthData, 'tables.No': Id }, { $set: { 'tables.$.No': No } }, { new: true, runValidators: true })
         .then(data => {
             if (!data)
                 return res.error('Masa bulunamadı')
@@ -88,11 +88,11 @@ router.put('/:id', tokenVerify, (req, res) => {
 })
 
 router.delete('/:id', tokenVerify, (req, res) => {
-    const Id = req.params.id
-    if (!mongoose.Types.ObjectId.isValid(Id))
-        return res.error('Geçersiz Id')
+    const No = Number(req.params.id)
+    if (typeof No != 'number')
+        return res.error('Geçersiz No')
 
-    Organization.findOneAndUpdate({ _id: req.AuthData, 'tables._id': Id }, { $pull: { 'tables': { _id: Id } } }, { runValidators: true }).select('-_id tables')
+    Organization.findOneAndUpdate({ _id: req.AuthData, 'tables.No': No }, { $pull: { 'tables': { No } } }, { runValidators: true }).select('-_id tables')
         .then(data => {
             if (!data)
                 return res.error('Masa Bulunamadı')

@@ -3,8 +3,11 @@ const Schema = mongoose.Schema
 
 const SiparisSchema = new Schema({
     orgId: mongoose.ObjectId,
-    date: String,
-    data: Schema.Types.Mixed
+    data: Schema.Types.Mixed,
+    date: {
+        type: Date,
+        default: Date.now
+    }
 })
 
 module.exports = mongoose.model('Siparis', SiparisSchema)

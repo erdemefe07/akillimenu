@@ -7,13 +7,16 @@ const PasswordValidator = require('password-validator')
 const pass = new PasswordValidator()
 const { isEmail, isMobilePhone } = require('validator')
 const CategorySchema = require('./Category')
-const TableSchema = require('./Table')
 const SettingsSchema = require('./Settings')
 pass
   .has().uppercase()
   .has().lowercase()
   .has().digits()
   .has().not().spaces()
+
+function isValidUsername(val) {
+  return !!val.indexOf(' ') >= 0;
+}
 
 const OrganizationSchema = new Schema({
   name: {
@@ -32,6 +35,7 @@ const OrganizationSchema = new Schema({
     type: String,
     minlength: [5, '{PATH} en az 5 karakter olmalı'],
     maxlength: [35, '{PATH} en fazla 35 karakter olmalı'],
+    validate: [isValidUsername, 'Kurallara uymayan Kullanıcı Adı'],
     required: [true, '{PATH} girilmesi zorunludur'],
     unique: true
   },
@@ -61,7 +65,16 @@ const OrganizationSchema = new Schema({
     type: Date,
     default: Date.now
   },
-  tables: [TableSchema],
+  tables: [
+    {
+      _id: false,
+      No:
+      {
+        type: Number,
+        required: true
+      }
+    }
+  ],
   menu: [CategorySchema],
   settings: SettingsSchema
 })

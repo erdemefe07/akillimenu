@@ -25,10 +25,6 @@ const Order = require('../db/Model/Order')
 router.get('/', tokenVerify, async (req, res) => {
     const siparis = await Orders.GetOrder(req.AuthData)
     const dondurulcek = []
-    // const length = siparis.length;
-    // for (let i = 0; i < length; i++) {
-    //     dondurulcek.push(JSON.parse(siparis[i]));
-    // }
 
     // TODO json.parse console.log da normal gösteriyor res.jsonda object object gösteriyor
     for (const [key, value] of Object.entries(siparis)) {
@@ -40,12 +36,9 @@ router.get('/', tokenVerify, async (req, res) => {
 
 router.delete('/', tokenVerify, async (req, res) => {
     const siparis = await Orders.GetOrderIndex(req.AuthData, req.body.del)
-    const suan = new Date()
-    const date = suan.getDate() + "-" + suan.getMonth() + "-" + suan.getFullYear()
-    new Order({ orgId: req.AuthData, date, data: siparis }).save()
-
     const silinecek = await Orders.DelOrder(req.AuthData, req.body.del)
     res.json({ ok: !!silinecek })
+    new Order({ orgId: req.AuthData, data: JSON.parse(siparis) }).save()
 })
 
 router.post('/', async (req, res) => {
@@ -58,17 +51,21 @@ router.post('/', async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(org))
         return res.error('Geçersiz İşletme Id`si')
 
-    if (!mongoose.Types.ObjectId.isValid(table))
+    if (typeof table != 'number')
         return res.error('Geçersiz Masa')
 
     const _ = await Organization.findById(org, 'menu tables')
     if (!_)
         return res.error('İşletme Bulunamadı')
 
-    const masa = _.tables.find(x => x._id == table)
+    const masa = _.tables.find(x => x.No == table)
     if (!masa) {
         return res.error('Masa Bulunamadı')
     }
+
+    const siparis = await Orders.GetOrderIndex(org, masa.No)
+    if(siparis)
+        return res.error('Sipariş tamamlanmadan yeni sipariş alınamaz')
 
     if (!Array.isArray(cat) || cat.length < 1) {
         return res.error('Kategori beklenen şekilde değil')
@@ -117,7 +114,7 @@ router.post('/', async (req, res) => {
 
     const son = { date: Date.now(), masa, response }
     req.app.io.to(org).emit('data', JSON.stringify(son, null, 2))
-    Orders.SetOrder(org, String(masa._id), JSON.stringify(son, null, 2))
+    Orders.SetOrder(org, String(masa.No), JSON.stringify(son, null, 2))
     return res.json(son)
 })
 
