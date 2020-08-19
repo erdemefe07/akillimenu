@@ -27,8 +27,7 @@ router.get('/', tokenVerify, async (req, res) => {
     const dondurulcek = []
 
     for (const [key, value] of Object.entries(siparis)) {
-        console.log("value", JSON.parse(value))
-        dondurulcek.push(`${key}: ${JSON.parse(value)}`);
+        dondurulcek.push(JSON.parse(value));
     }
     res.json(dondurulcek)
 })
@@ -63,7 +62,7 @@ router.post('/', async (req, res) => {
     }
 
     const siparis = await Orders.GetOrderIndex(org, masa.No)
-    if(siparis)
+    if (siparis)
         return res.error('Sipariş tamamlanmadan yeni sipariş alınamaz')
 
     if (!Array.isArray(cat) || cat.length < 1) {

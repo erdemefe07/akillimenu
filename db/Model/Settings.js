@@ -41,7 +41,7 @@ const SettingsSchema = new Schema({
     KarsilamaMesaji: DefaultBoolean,
     KaranlikTema: DefaultBoolean,
     EkranOryantasyonu: DefaultBoolean,
-    MenuYapisi: DefaultBoolean
+    MenuYapisi: DefaultBoolean,
 })
 
 module.exports = SettingsSchema

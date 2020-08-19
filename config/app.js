@@ -29,19 +29,19 @@ app.response.error = function (message, err) {
     return this.status(500).send({ ok: false, message })
 }
 
-function OptimizeEt(photo) {
-    return sharp(photo)
+async function OptimizeEt(photo) {
+    return await sharp(photo)
         .clone()
         .jpeg({ quality: 80 })
         .toBuffer()
 }
 
 app.response.ResimYukle = (image) => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         if (!image)
             return reject({ ok: false, msg: "Resim Gönderilmemiş" })
 
-        image = OptimizeEt(image.buffer)
+        image = await OptimizeEt(image.buffer)
 
         const foto = new Photo({ photo: image })
         foto.save()
