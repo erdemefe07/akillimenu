@@ -10,6 +10,13 @@ const Tokens = require('../db/RedisModel/Tokens')
 const tokenVerify = require('../helpers/jwt').verify
 const signToken = require('../helpers/jwt').sign
 const upload = require('../helpers/multer')
+const settingsMulter = upload.fields([
+  { name: "Logo", maxCount: 1 },
+  { name: "BrosurArkaPlan", maxCount: 1 },
+  { name: "Slider1", maxCount: 1 },
+  { name: "Slider2", maxCount: 1 },
+  { name: "Slider3", maxCount: 1 }
+])
 
 router.get('/', (req, res) => {
   Organization.find()
@@ -107,10 +114,62 @@ router.put('/', [upload.single('photo'), tokenVerify], (req, res) => {
     })
 })
 
-router.put('/settings', tokenVerify, (req, res) => {
-  Organization.findByIdAndUpdate(req.AuthData, { settings: req.body }, { new: true }).select("settings")
-    .then(data => {
-      res.json(data)
+router.put('/settings', [settingsMulter, tokenVerify], (req, res) => {
+  let { Logo, BrosurArkaPlan, Slider1, Slider2, Slider3 } = req.files || {}
+
+  Organization.findById(req.AuthData).select("settings")
+    .then(async data => {
+      for (const [key, value] of Object.entries(req.body)) {
+        data.settings[key] = value
+      }
+
+      if (Logo) {
+        Logo = Logo[0]
+        if (data.settings.Logo == 'ornekLogo')
+          data.settings.Logo = await res.ResimYukle(Logo).then(img => img.data)
+        else
+          data.settings.Logo = await res.ResimDegistir(data.settings.Logo, Logo).then(img => img.data)
+      }
+
+      if (BrosurArkaPlan) {
+        BrosurArkaPlan = BrosurArkaPlan[0]
+        if (data.settings.BrosurArkaPlan == 'ornekBrosurArkaPlan')
+          data.settings.BrosurArkaPlan = await res.ResimYukle(BrosurArkaPlan).then(img => img.data)
+        else
+          data.settings.BrosurArkaPlan = await res.ResimDegistir(data.settings.BrosurArkaPlan, BrosurArkaPlan).then(img => img.data)
+      }
+
+      if (Slider1) {
+        Slider1 = Slider1[0]
+        if (data.settings.Slider1 == 'ornekSlider')
+          data.settings.Slider1 = await res.ResimYukle(Slider1).then(img => img.data)
+        else
+          data.settings.Slider1 = await res.ResimDegistir(data.settings.Slider1, Slider1).then(img => img.data)
+      }
+
+      if (Slider2) {
+        Slider2 = Slider2[0]
+        if (data.settings.Slider2 == 'ornekSlider')
+          data.settings.Slider2 = await res.ResimYukle(Slider2).then(img => img.data)
+        else
+          data.settings.Slider2 = await res.ResimDegistir(data.settings.Slider2, Slider2).then(img => img.data)
+      }
+
+      if (Slider3) {
+        Slider3 = Slider3[0]
+        if (data.settings.Slider3 == 'ornekSlider')
+          data.settings.Slider3 = await res.ResimYukle(Slider3).then(img => img.data)
+        else
+          data.settings.Slider3 = await res.ResimDegistir(data.settings.Slider3, Slider3).then(img => img.data)
+      }
+
+      data.save()
+        .then(data => {
+          res.json(data)
+        })
+        .catch(err => {
+          res.json(err)
+        })
     })
     .catch(err => {
       res.error('', err)

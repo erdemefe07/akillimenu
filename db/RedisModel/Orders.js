@@ -12,7 +12,7 @@ Orders.prototype.SetOrder = (id, table, order) => {
     })
 }
 
-Orders.prototype.GetOrder = id => {
+Orders.prototype.GetOrders = id => {
     return new Promise(resolve => {
         client.hgetall(id, (err, data) => {
             if (err) console.log(err)

@@ -23,13 +23,22 @@ const Order = require('../db/Model/Order')
 //     ]
 // }
 router.get('/', tokenVerify, async (req, res) => {
-    const siparis = await Orders.GetOrder(req.AuthData)
+    const siparis = await Orders.GetOrders(req.AuthData)
+    if (!siparis)
+        return res.json({ null: true })
     const dondurulcek = []
 
     for (const [key, value] of Object.entries(siparis)) {
         dondurulcek.push(JSON.parse(value));
     }
     res.json(dondurulcek)
+})
+
+router.get('/:id', tokenVerify, async (req, res) => {
+    const siparis = await Orders.GetOrderIndex(req.AuthData, req.params.id)
+    if (!siparis)
+        return res.json({ null: true })
+    res.json(JSON.parse(siparis))
 })
 
 router.delete('/', tokenVerify, async (req, res) => {
@@ -112,7 +121,9 @@ router.post('/', async (req, res) => {
 
     const son = { date: Date.now(), masa, response }
     req.app.io.to(org).emit('data', JSON.stringify(son, null, 2))
+    console.log('socket Çalıştı')
     Orders.SetOrder(org, String(masa.No), JSON.stringify(son, null, 2))
+    console.log('set order çalıştı')
     return res.json(son)
 })
 

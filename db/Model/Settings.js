@@ -7,35 +7,54 @@ const DefaultBoolean = {
     default: false
 }
 
+const Photo = {
+    type: String,
+    default: "ornekSlider"
+}
+
 const SettingsSchema = new Schema({
     BildirimVer: DefaultBoolean,
     BildirimSesi: {
         type: Number,
+        enum: [0, 1, 2, 3],
         default: 0
     },
     Facebook: {
         type: String,
-        default: 'facebook.com'
+        default: 'AkilliMenum'
     },
     Instagram: {
         type: String,
-        default: 'instagram.com'
+        default: 'akillimenumcom'
     },
     Siparis: {
         type: Array,
         default: [true, false, false]
     },
-
     LogoOlsun: {
         type: Boolean,
         default: false,
     },
-    // Logo: Buffer,
+
+    Logo: {
+        type: String,
+        default: "ornekLogo"
+    },
+
     BrosurTuru: {
         type: Number,
         enum: [0, 1, 2, 3],
+        default: 0
     },
-    // BrosurArkaPlan: Buffer,
+
+    BrosurArkaPlan: {
+        type: String,
+        default: "ornekBrosurArkaPlan"
+    },
+
+    Slider1: Photo,
+    Slider2: Photo,
+    Slider3: Photo,
 
     LogoGosterilsin: DefaultBoolean,
     KarsilamaMesaji: DefaultBoolean,

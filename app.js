@@ -44,9 +44,10 @@ app.get('/photos/:id', (req, res) => {
 
     Photo.findById(req.params.id)
         .then(data => {
-            if (!data)
-                return res.json({ ok: false })
             res.contentType('image/jpeg');
+            if (!data) {
+                return res.send(fs.readFileSync("./uploads/null"))
+            }
             res.send(data.photo)
         })
         .catch(err => res.json({ ok: false }))
