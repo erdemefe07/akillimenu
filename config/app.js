@@ -1,3 +1,5 @@
+// TODO RESİM DEĞİŞTİR DİYE AYRI ROUTE OLMASIN EĞER ÖRNEK RESİM VARSA OTOMATİK EKLESİN YOKSA DEĞİŞSİN
+
 const express = require('express')
 const app = express()
 const sharp = require('sharp')
@@ -13,7 +15,6 @@ app.response.error = function (message, err) {
     if (message == '')
         message = 'Bilinmeyen Hata'
     if (err) {
-        console.log('Hata Meydana Geldi')
         new ErrorLog({
             path: this.req.originalUrl,
             method: this.req.method,
@@ -25,7 +26,6 @@ app.response.error = function (message, err) {
             message: err.message
         }).save()
     }
-    console.log('ERROR DONDURULDU', message)
     return this.status(500).send({ ok: false, message })
 }
 
@@ -52,8 +52,6 @@ app.response.ResimYukle = (image) => {
 
 app.response.ResimSil = function (id) {
     Photo.findByIdAndDelete(id)
-        .then(ok => { })
-        .catch(err => { })
 }
 
 app.response.ResimDegistir = (id, image) => {

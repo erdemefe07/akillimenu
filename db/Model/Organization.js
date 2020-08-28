@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt')
 const uniqueValidator = require('mongoose-unique-validator')
 const PasswordValidator = require('password-validator')
 const pass = new PasswordValidator()
+const username = new PasswordValidator()
 const { isEmail, isMobilePhone } = require('validator')
 const CategorySchema = require('./Category')
 const SettingsSchema = require('./Settings')
@@ -14,8 +15,14 @@ pass
   .has().digits()
   .has().not().spaces()
 
+username
+  .has().not().uppercase()
+  .has().not().digits()
+  .has().not().spaces()
+  .has().not().symbols()
+
 function isValidUsername(val) {
-  return !!val.indexOf(' ') >= 0;
+  return username.validate(val)
 }
 
 const OrganizationSchema = new Schema({

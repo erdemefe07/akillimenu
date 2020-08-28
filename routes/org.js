@@ -19,9 +19,12 @@ const settingsMulter = upload.fields([
 ])
 
 router.get('/', (req, res) => {
-  Organization.find()
-    .then(data => res.json(data))
-    .catch(err => res.error('', err))
+  const username = req.body.username
+  Organization.findOne({ username }).then(data => {
+    if (!data)
+      return res.status(404).json({ 'message': "Bulunamadı!" })
+    res.json({ 'id': data._id })
+  })
 })
 
 router.get('/current', tokenVerify, (req, res) => {
@@ -51,7 +54,7 @@ router.post('/', (req, res) => {
   if (!username || !password || !email || !name || !address || !phone)
     return res.error('Bazı alanlar boş')
 
-  const organization = new Organization({ username, password, email, name, address, phone })
+  const organization = new Organization({ username, password, email, name, address, phone, 'settings': {} })
 
   organization.save()
     .then(data => {
@@ -68,7 +71,12 @@ router.post('/', (req, res) => {
           return res.json({ ok: true })
         })
     })
-    .catch(err => res.error(err.message))
+
+    .catch(err => {
+      const errors = []
+      Object.entries(err.errors).forEach(([key, value]) => errors.push(`${key}: ${value}`))
+      res.error(errors)
+    })
 })
 
 router.put('/', [upload.single('photo'), tokenVerify], (req, res) => {
@@ -194,17 +202,18 @@ router.post('/login', async (req, res) => {
     return res.error('Şifre yanlış')
   }
 
+  console.log("organization", organization)
   Tokens.get(String(organization._id))
     .then(data => {
+      console.log("data", data)
       if (data)
         return res.json({ ok: true, token: data })
-      return res.error('', err)
+      // res.error('', { message: 'Login olurken hata meydana geldi. Lütfen kaynak koduna göz atınız.', name: 'Bilinmeyen Kaynaklı Hata' })
     })
     .catch(err => res.error('', err))
 })
 
 router.post('/logout', tokenVerify, async (req, res) => {
-  // const sonuc = await Tokens.del(req.AuthData)
   if (sonuc) {
     res.json({ ok: true })
   } else {

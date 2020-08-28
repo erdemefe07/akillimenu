@@ -20,25 +20,36 @@ const catRoute = require('./routes/cat')
 const proRoute = require('./routes/pro')
 const ordRoute = require('./routes/ord');
 const tabRoute = require('./routes/tab');
+// const getRoute = require('./routes/get');
 
 app.use('/org', orgRoute)
 app.use('/cat', catRoute)
 app.use('/pro', proRoute)
 app.use('/ord', ordRoute)
 app.use('/tab', tabRoute)
+// app.use('/get', getRoute)
 app.get('/photos/:id', (req, res) => {
     switch (req.params.id) {
         case "ornekOrganization":
             res.contentType('image/jpeg');
-            return res.send(fs.readFileSync("./uploads/ornekOrganization"))
+            return res.send(fs.readFile("./uploads/ornekOrganization"), (err, data) => {
+                if (err) throw err;
+                return data
+            })
 
         case "ornekCategory":
             res.contentType('image/jpeg');
-            return res.send(fs.readFileSync("./uploads/ornekCategory"))
+            return res.send(fs.readFile("./uploads/ornekCategory"), (err, data) => {
+                if (err) throw err;
+                return data
+            })
 
         case "ornekProduct":
             res.contentType('image/jpeg');
-            return res.send(fs.readFileSync("./uploads/ornekProduct"))
+            return res.send(fs.readFile("./uploads/ornekProduct"), (err, data) => {
+                if (err) throw err;
+                return data
+            })
     }
 
 
@@ -46,7 +57,10 @@ app.get('/photos/:id', (req, res) => {
         .then(data => {
             res.contentType('image/jpeg');
             if (!data) {
-                return res.send(fs.readFileSync("./uploads/null"))
+                return res.send(fs.readFile("./uploads/null"), (err, data) => {
+                    if (err) throw err;
+                    return data
+                })
             }
             res.send(data.photo)
         })
