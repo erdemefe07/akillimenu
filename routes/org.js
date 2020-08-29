@@ -18,12 +18,23 @@ const settingsMulter = upload.fields([
   { name: "Slider3", maxCount: 1 }
 ])
 
-router.get('/', (req, res) => {
-  const username = req.body.username
-  Organization.findOne({ username }).then(data => {
+router.get('/:username', (req, res) => {
+  const username = req.params.username
+  Organization.findOne({ username }, '-address -phone -email').then(data => {
     if (!data)
       return res.status(404).json({ 'message': "Bulunamadı!" })
-    res.json({ 'id': data._id })
+    res.json({
+      _id: data._id,
+      photo: data.photo,
+      username: data.username,
+      name: data.name,
+      tables: data.tables,
+      menu: data.menu,
+      settings: {
+        Facebook: data.settings.Facebook,
+        Instagram: data.settings.Instagram,
+      }
+    })
   })
 })
 
@@ -33,19 +44,19 @@ router.get('/current', tokenVerify, (req, res) => {
     .catch(err => res.error('', err))
 })
 
-router.get('/:id', (req, res) => {
-  const Id = req.params.id
-  if (!mongoose.Types.ObjectId.isValid(Id))
-    return res.error('Geçersiz Id')
+// router.get('/:id', (req, res) => {
+//   const Id = req.params.id
+//   if (!mongoose.Types.ObjectId.isValid(Id))
+//     return res.error('Geçersiz Id')
 
-  Organization.findById(Id)
-    .then(data => {
-      if (!data)
-        return res.error('İşletme bulunamadı')
-      res.json(data)
-    })
-    .catch(err => res.error('', err))
-})
+//   Organization.findById(Id)
+//     .then(data => {
+//       if (!data)
+//         return res.error('İşletme bulunamadı')
+//       res.json(data)
+//     })
+//     .catch(err => res.error('', err))
+// })
 
 // ! ------ POST------ POST ------ POST ------ POST ------ POST ------ POST------
 
@@ -66,7 +77,7 @@ router.post('/', (req, res) => {
           if (!datas)
             return res.error('', datas)
 
-          Tokens.set(String(data._id), datas)
+          Tokens.set(String(data.username), datas)
 
           return res.json({ ok: true })
         })

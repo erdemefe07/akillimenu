@@ -13,6 +13,7 @@ const Photo = {
 }
 
 const SettingsSchema = new Schema({
+    _id: false,
     BildirimVer: DefaultBoolean,
     BildirimSesi: {
         type: Number,
