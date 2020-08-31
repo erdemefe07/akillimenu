@@ -121,10 +121,8 @@ router.post('/', async (req, res) => {
 
     const son = { date: Date.now(), masa, response }
     req.app.io.to(org).emit('data', JSON.stringify(son, null, 2))
-    console.log('socket Çalıştı')
     Orders.SetOrder(org, String(masa.No), JSON.stringify(son, null, 2))
-    console.log('set order çalıştı')
-    return res.json(son)
+    return res.json({ ok: true })
 })
 
 module.exports = router

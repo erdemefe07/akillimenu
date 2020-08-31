@@ -2,7 +2,6 @@ const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt')
 const { isEmail } = require('validator')
-const mongoose = require('mongoose')
 
 const Organization = require('../db/Model/Organization')
 const Tokens = require('../db/RedisModel/Tokens')
@@ -17,6 +16,12 @@ const settingsMulter = upload.fields([
   { name: "Slider2", maxCount: 1 },
   { name: "Slider3", maxCount: 1 }
 ])
+
+router.get('/current', tokenVerify, (req, res) => {
+  Organization.findById(req.AuthData)
+    .then(data => res.json(data))
+    .catch(err => res.error('', err))
+})
 
 router.get('/:username', (req, res) => {
   const username = req.params.username
@@ -33,15 +38,12 @@ router.get('/:username', (req, res) => {
       settings: {
         Facebook: data.settings.Facebook,
         Instagram: data.settings.Instagram,
+        Slider1: data.settings.Slider1,
+        Slider2: data.settings.Slider2,
+        Slider3: data.settings.Slider3
       }
     })
   })
-})
-
-router.get('/current', tokenVerify, (req, res) => {
-  Organization.findById(req.AuthData)
-    .then(data => res.json(data))
-    .catch(err => res.error('', err))
 })
 
 // router.get('/:id', (req, res) => {
@@ -77,7 +79,7 @@ router.post('/', (req, res) => {
           if (!datas)
             return res.error('', datas)
 
-          Tokens.set(String(data.username), datas)
+          Tokens.set(String(data._id), datas)
 
           return res.json({ ok: true })
         })
@@ -165,6 +167,9 @@ router.put('/settings', [settingsMulter, tokenVerify], (req, res) => {
         else
           data.settings.Slider1 = await res.ResimDegistir(data.settings.Slider1, Slider1).then(img => img.data)
       }
+      else
+        data.settings.Slider1 = 'ornekSlider'
+
 
       if (Slider2) {
         Slider2 = Slider2[0]
@@ -173,6 +178,8 @@ router.put('/settings', [settingsMulter, tokenVerify], (req, res) => {
         else
           data.settings.Slider2 = await res.ResimDegistir(data.settings.Slider2, Slider2).then(img => img.data)
       }
+      else
+        data.settings.Slider2 = 'ornekSlider'
 
       if (Slider3) {
         Slider3 = Slider3[0]
@@ -181,6 +188,8 @@ router.put('/settings', [settingsMulter, tokenVerify], (req, res) => {
         else
           data.settings.Slider3 = await res.ResimDegistir(data.settings.Slider3, Slider3).then(img => img.data)
       }
+      else
+        data.settings.Slider3 = 'ornekSlider'
 
       data.save()
         .then(data => {
@@ -213,10 +222,8 @@ router.post('/login', async (req, res) => {
     return res.error('Şifre yanlış')
   }
 
-  console.log("organization", organization)
   Tokens.get(String(organization._id))
     .then(data => {
-      console.log("data", data)
       if (data)
         return res.json({ ok: true, token: data })
       // res.error('', { message: 'Login olurken hata meydana geldi. Lütfen kaynak koduna göz atınız.', name: 'Bilinmeyen Kaynaklı Hata' })

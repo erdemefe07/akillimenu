@@ -28,27 +28,32 @@ app.use('/pro', proRoute)
 app.use('/ord', ordRoute)
 app.use('/tab', tabRoute)
 // app.use('/get', getRoute)
+
 app.get('/photos/:id', (req, res) => {
     switch (req.params.id) {
         case "ornekOrganization":
-            res.contentType('image/jpeg');
-            return res.send(fs.readFile("./uploads/ornekOrganization"), (err, data) => {
-                if (err) throw err;
-                return data
+            return fs.readFile("./uploads/ornekOrganization", (err, data) => {
+                if (err) res.json({ ok: false });
+                res.contentType('image/jpeg');
+                res.send(data)
             })
-
         case "ornekCategory":
-            res.contentType('image/jpeg');
-            return res.send(fs.readFile("./uploads/ornekCategory"), (err, data) => {
-                if (err) throw err;
-                return data
+            return fs.readFile("./uploads/ornekCategory", (err, data) => {
+                if (err) res.json({ ok: false });
+                res.contentType('image/jpeg');
+                res.send(data)
             })
-
         case "ornekProduct":
-            res.contentType('image/jpeg');
-            return res.send(fs.readFile("./uploads/ornekProduct"), (err, data) => {
-                if (err) throw err;
-                return data
+            return fs.readFile("./uploads/ornekProduct", (err, data) => {
+                if (err) res.json({ ok: false });
+                res.contentType('image/jpeg');
+                res.send(data)
+            })
+        case "ornekSlider":
+            return fs.readFile("./uploads/ornekSlider", (err, data) => {
+                if (err) res.json({ ok: false });
+                res.contentType('image/jpeg');
+                res.send(data)
             })
     }
 
