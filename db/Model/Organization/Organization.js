@@ -9,6 +9,7 @@ const username = new PasswordValidator()
 const { isEmail, isMobilePhone } = require('validator')
 const CategorySchema = require('./Category')
 const SettingsSchema = require('./Settings')
+const CommentSchema = require('./Comment')
 pass
   .has().uppercase()
   .has().lowercase()
@@ -83,7 +84,8 @@ const OrganizationSchema = new Schema({
     }
   ],
   menu: [CategorySchema],
-  settings: SettingsSchema
+  settings: SettingsSchema,
+  comments: [CommentSchema]
 })
 
 OrganizationSchema.pre('save', function (next) {

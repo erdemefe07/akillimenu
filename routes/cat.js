@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 const mongoose = require('mongoose')
-const Organization = require('../db/Model/Organization.js')
+const Organization = require('../db/Model/Organization/Organization.js')
 
 const tokenVerify = require('../helpers/jwt').verify
 const upload = require('../helpers/multer')
@@ -67,7 +67,12 @@ router.post('/', [upload.single('photo'), tokenVerify], (req, res) => {
             return res.error('', { message: 'Kategori eklerken hata meydana geldi. Lütfen kaynak koduna göz atınız.', name: 'Bilinmeyen Kaynaklı Hata' })
           const _data = data.menu
           const categoryId = _data[_data.length - 1]._id
-          res.json({ ok: true, _id: data._id, categoryId, photo: _Photo })
+          res.json({
+            ok: true,
+            _id: data._id,
+            categoryId,
+            photo: _Photo
+          })
         })
         .catch(err => {
           return res.error(err.message)

@@ -3,7 +3,7 @@ const router = express.Router()
 const bcrypt = require('bcrypt')
 const { isEmail } = require('validator')
 
-const Organization = require('../db/Model/Organization')
+const Organization = require('../db/Model/Organization/Organization')
 const Tokens = require('../db/RedisModel/Tokens')
 
 const tokenVerify = require('../helpers/jwt').verify
@@ -85,6 +85,23 @@ router.post('/', (req, res) => {
         })
     })
 
+    .catch(err => {
+      const errors = []
+      Object.entries(err.errors).forEach(([key, value]) => errors.push(`${key}: ${value}`))
+      res.error(errors)
+    })
+})
+
+router.post('/comment', (req, res) => {
+  const { org, star, comment } = req.body
+  if (!org || !star || star < 0 || star > 5 || !comment)
+    return res.error('Bazı alanlar yanlış')
+
+  Organization.findOneAndUpdate({ username: org }, { $push: { comments: { star, comment } } })
+    .then(data => {
+      if (!data) return res.error('')
+      res.json({ ok: true })
+    })
     .catch(err => {
       const errors = []
       Object.entries(err.errors).forEach(([key, value]) => errors.push(`${key}: ${value}`))

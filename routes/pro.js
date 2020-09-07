@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
-const Organization = require('../db/Model/Organization.js')
+const Organization = require('../db/Model/Organization/Organization.js')
 const tokenVerify = require('../helpers/jwt').verify
 const upload = require('../helpers/multer')
 
