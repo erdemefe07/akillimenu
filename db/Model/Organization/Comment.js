@@ -10,6 +10,10 @@ const CommentSchema = new Schema({
         type: String,
         maxlength: 300
     },
+    date: {
+        type: Date,
+        default: Date.now
+    },
 })
 
 module.exports = CommentSchema
