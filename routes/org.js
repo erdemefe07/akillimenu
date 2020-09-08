@@ -23,6 +23,16 @@ router.get('/current', tokenVerify, (req, res) => {
     .catch(err => res.error('', err))
 })
 
+router.get('/comments', tokenVerify, (req, res) => {
+  Organization.findById(req.AuthData, 'comments')
+    .then(data => {
+      if (!data)
+        return res.error('İşletme bulunamadı')
+      res.json(data.comments)
+    })
+    .catch(err => res.error('', err))
+})
+
 router.get('/:username', (req, res) => {
   const username = req.params.username
   Organization.findOne({ username }, '-address -phone -email').then(data => {
@@ -45,20 +55,6 @@ router.get('/:username', (req, res) => {
     })
   })
 })
-
-// router.get('/:id', (req, res) => {
-//   const Id = req.params.id
-//   if (!mongoose.Types.ObjectId.isValid(Id))
-//     return res.error('Geçersiz Id')
-
-//   Organization.findById(Id)
-//     .then(data => {
-//       if (!data)
-//         return res.error('İşletme bulunamadı')
-//       res.json(data)
-//     })
-//     .catch(err => res.error('', err))
-// })
 
 // ! ------ POST------ POST ------ POST ------ POST ------ POST ------ POST------
 
