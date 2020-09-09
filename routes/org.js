@@ -90,7 +90,7 @@ router.post('/', (req, res) => {
 
 router.post('/comment', (req, res) => {
   const { org, star, comment } = req.body
-  if (!org || !star || star < 0 || star > 5 || !comment)
+  if (!org || !star || star < 0 || star > 5 || typeof comment != 'string')
     return res.error('Bazı alanlar yanlış')
 
   Organization.findOneAndUpdate({ username: org }, { $push: { comments: { star, comment } } })
