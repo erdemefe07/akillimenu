@@ -7,6 +7,7 @@ const nodemailer = require("nodemailer");
 
 // ! ------ POST------ POST ------ POST ------ POST ------ POST ------ POST------
 
+
 router.post('/new', async (req, res) => {
     let testAccount = await nodemailer.createTestAccount();
 

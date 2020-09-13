@@ -20,6 +20,7 @@ const catRoute = require('./routes/cat')
 const proRoute = require('./routes/pro')
 const ordRoute = require('./routes/ord');
 const tabRoute = require('./routes/tab');
+const comRoute = require('./routes/com');
 // const getRoute = require('./routes/get');
 
 app.use('/org', orgRoute)
@@ -27,6 +28,7 @@ app.use('/cat', catRoute)
 app.use('/pro', proRoute)
 app.use('/ord', ordRoute)
 app.use('/tab', tabRoute)
+app.use('/com', comRoute)
 // app.use('/get', getRoute)
 
 app.get('/photos/:id', (req, res) => {

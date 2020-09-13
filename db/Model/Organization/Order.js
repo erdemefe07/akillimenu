@@ -1,15 +1,9 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
-const CommentSchema = new Schema({
-    star: {
-        type: Number,
-        enum: [0, 1, 2, 3, 4, 5],
-    },
-    comment: {
-        type: String,
-        maxlength: 300
-    },
+const OrderSchema = new Schema({
+    table: Number,
+    order: Schema.Types.Mixed,
     user: String,
     date: {
         type: Date,
@@ -21,4 +15,4 @@ const CommentSchema = new Schema({
     },
 })
 
-module.exports = CommentSchema
+module.exports = OrderSchema

@@ -7,9 +7,11 @@ const PasswordValidator = require('password-validator')
 const pass = new PasswordValidator()
 const username = new PasswordValidator()
 const { isEmail, isMobilePhone } = require('validator')
+
 const CategorySchema = require('./Category')
 const SettingsSchema = require('./Settings')
 const CommentSchema = require('./Comment')
+const OrderSchema = require('./Order')
 pass
   .has().uppercase()
   .has().lowercase()
@@ -71,7 +73,11 @@ const OrganizationSchema = new Schema({
   },
   date: {
     type: Date,
-    default: Date.now
+    default: function () {
+      const simdi = new Date();
+      simdi.setHours(simdi.getHours() + 3);
+      return simdi
+    }
   },
   tables: [
     {
@@ -84,6 +90,7 @@ const OrganizationSchema = new Schema({
     }
   ],
   menu: [CategorySchema],
+  orders: [OrderSchema],
   settings: SettingsSchema,
   comments: [CommentSchema]
 })

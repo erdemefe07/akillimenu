@@ -6,12 +6,6 @@ function Orders() {
 
 module.exports = new Orders()
 
-Orders.prototype.SetOrder = (id, table, order) => {
-    client.hset(id, table, order, (err, res) => {
-        if (err) console.log(err)
-    })
-}
-
 Orders.prototype.GetOrders = id => {
     return new Promise(resolve => {
         client.hgetall(id, (err, data) => {
@@ -30,11 +24,17 @@ Orders.prototype.GetOrderIndex = (id, table) => {
     })
 }
 
+Orders.prototype.SetOrder = (id, table, order) => {
+    client.hset(id, table, order, (err, res) => {
+        if (err) console.log(err)
+    })
+}
+
 Orders.prototype.DelOrder = (id, table) => {
     return new Promise(resolve => {
         client.hdel(id, table, (err, data) => {
             if (err) console.log(err)
-                resolve(data)
+            resolve(data)
         })
     })
 }

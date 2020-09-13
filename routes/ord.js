@@ -4,24 +4,8 @@ const mongoose = require('mongoose')
 const Organization = require('../db/Model/Organization/Organization.js')
 const tokenVerify = require('../helpers/jwt').verify
 const Orders = require('../db/RedisModel/Orders')
-const Order = require('../db/Model/Order')
 
-// {
-//     "org": "5f2c695be052e1001732f3af",
-//     "table": "5f2c695be052e1001732f3af",
-//     "cat": [
-//         {
-//             "id": "5f2c6a97e052e1001732f3b0",
-//             "products": [
-//                 {
-//                     "id": "5f2c6b87e052e1001732f3b1",
-//                     "count": 4,
-//                     "comment": "this is my comment"
-//                 }
-//             ]
-//         }
-//     ]
-// }
+// Tüm siparişler
 router.get('/', tokenVerify, async (req, res) => {
     const siparis = await Orders.GetOrders(req.AuthData)
     if (!siparis)
@@ -34,6 +18,7 @@ router.get('/', tokenVerify, async (req, res) => {
     res.json(dondurulcek)
 })
 
+// 'id' numaralı masa
 router.get('/:id', tokenVerify, async (req, res) => {
     const siparis = await Orders.GetOrderIndex(req.AuthData, req.params.id)
     if (!siparis)
@@ -41,13 +26,16 @@ router.get('/:id', tokenVerify, async (req, res) => {
     res.json(JSON.parse(siparis))
 })
 
+// Masa kapatma
 router.delete('/', tokenVerify, async (req, res) => {
-    const siparis = await Orders.GetOrderIndex(req.AuthData, req.body.del)
+    const siparis = JSON.parse(await Orders.GetOrderIndex(req.AuthData, req.body.del))
     const silinecek = await Orders.DelOrder(req.AuthData, req.body.del)
     res.json({ ok: !!silinecek })
-    new Order({ orgId: req.AuthData, data: JSON.parse(siparis) }).save()
+    Organization.findByIdAndUpdate(req.AuthData, { $push: { orders: { table: siparis.masa.No, order: siparis.response,  user: siparis.user } } }, { new: true })
+    .then()
 })
 
+// Sipariş verme
 router.post('/', async (req, res) => {
     const response = []
 
@@ -69,10 +57,6 @@ router.post('/', async (req, res) => {
     if (!masa) {
         return res.error('Masa Bulunamadı')
     }
-
-    const siparis = await Orders.GetOrderIndex(org, masa.No)
-    if (siparis)
-        return res.error('Sipariş tamamlanmadan yeni sipariş alınamaz')
 
     if (!Array.isArray(cat) || cat.length < 1) {
         return res.error('Kategori beklenen şekilde değil')
@@ -119,8 +103,14 @@ router.post('/', async (req, res) => {
     if (error)
         return res.error(error)
 
-    const son = { date: Date.now(), masa, response }
+    const son = { date: Date.now(), masa, response, user: req.headers["user-agent"] }
     req.app.io.to(org).emit('data', JSON.stringify(son, null, 2))
+
+    const siparis = JSON.parse(await Orders.GetOrderIndex(org, masa.No))
+    if (siparis)
+        siparis.response.forEach(element => {
+            son.response.push(element)
+        });
     Orders.SetOrder(org, String(masa.No), JSON.stringify(son, null, 2))
     return res.json({ ok: true })
 })
