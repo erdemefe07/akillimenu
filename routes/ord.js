@@ -103,7 +103,7 @@ router.post('/', async (req, res) => {
     if (error)
         return res.error(error)
 
-    const son = { date: Date.now(), masa, response, user: req.headers["user-agent"] }
+    const son = { _id: new mongoose.Types.ObjectId(), date: Date.now(), masa, response, user: req.headers["user-agent"] }
     req.app.io.to(org).emit('data', JSON.stringify(son, null, 2))
 
     const siparis = JSON.parse(await Orders.GetOrderIndex(org, masa.No))
