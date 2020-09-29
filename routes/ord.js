@@ -28,11 +28,30 @@ router.get('/:id', tokenVerify, async (req, res) => {
 
 // Masa kapatma
 router.delete('/', tokenVerify, async (req, res) => {
-    const siparis = JSON.parse(await Orders.GetOrderIndex(req.AuthData, req.body.del))
-    const silinecek = await Orders.DelOrder(req.AuthData, req.body.del)
+    const { ordersArray, del } = req.body
+    const siparis = JSON.parse(await Orders.GetOrderIndex(req.AuthData, del))
+
+    //Siparislerde sadece ürünleri alma
+    const siparisler = []
+    for (let i = 0; i < siparis.response.length; i++) {
+        const cat = siparis.response[i].ürünler;
+        for (let j = 0; j < cat.length; j++) {
+            const prod = cat[j];
+            siparisler.push(prod)
+        }
+    }
+
+    siparis.response = []
+    for (let i = 0; i < ordersArray.length; i++) {
+        const urun = siparisler[ordersArray[i]]
+        if (urun)
+            siparis.response.push(urun)
+    }
+
+    const silinecek = await Orders.DelOrder(req.AuthData, del)
     res.json({ ok: !!silinecek })
-    Organization.findByIdAndUpdate(req.AuthData, { $push: { orders: { table: siparis.masa.No, order: siparis.response,  user: siparis.user } } }, { new: true })
-    .then()
+    Organization.findByIdAndUpdate(req.AuthData, { $push: { orders: { table: siparis.masa.No, order: siparis.response, user: siparis.user } } }, { new: true })
+        .then()
 })
 
 // Sipariş verme
@@ -113,6 +132,22 @@ router.post('/', async (req, res) => {
         });
     Orders.SetOrder(org, String(masa.No), JSON.stringify(son, null, 2))
     return res.json({ ok: true })
+})
+
+router.post('/userEvent', (req, res) => {
+    const { event, table, org } = req.body
+    if (typeof event != 'boolean')
+        return res.json('Olay bilgisi alınamadı.')
+
+    if (typeof table != 'number')
+        return res.json('Masa bilgisi alınamadı.')
+
+    if (!mongoose.Types.ObjectId.isValid(org))
+        return res.error('İşletme bilgisi alınamadı.')
+
+    req.app.io.to(org).emit('event', { event, table })
+
+    res.json({ ok: true })
 })
 
 module.exports = router

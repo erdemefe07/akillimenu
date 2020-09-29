@@ -1,8 +1,6 @@
-// TODO RESİM DEĞİŞTİR DİYE AYRI ROUTE OLMASIN EĞER ÖRNEK RESİM VARSA OTOMATİK EKLESİN YOKSA DEĞİŞSİN
-
 const express = require('express')
 const app = express()
-const sharp = require('sharp')
+const { s3upload, s3delete } = require('../helpers/aws-s3/')
 
 const ErrorLog = require('../db/Model/ErrorLog.js')
 const Photo = require('../db/Model/Photo.js');
@@ -29,29 +27,17 @@ app.response.error = function (message, err) {
     return this.status(500).send({ ok: false, message })
 }
 
-async function OptimizeEt(photo) {
-    return await sharp(photo)
-        .clone()
-        .jpeg({ quality: 80 })
-        .toBuffer()
-}
-
 app.response.ResimYukle = (image) => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
         if (!image)
             return reject({ ok: false, msg: "Resim Gönderilmemiş" })
 
-        image = await OptimizeEt(image.buffer)
-
-        const foto = new Photo({ photo: image })
-        foto.save()
-            .then(data => resolve({ ok: true, data: data._id }))
-            .catch(err => reject({ ok: false, msg: err }))
+        resolve({ ok: true, data: s3upload(image.buffer) })
     })
 }
 
 app.response.ResimSil = function (id) {
-    Photo.findByIdAndDelete(id)
+    s3delete(id)
 }
 
 app.response.ResimDegistir = (id, image) => {
@@ -59,11 +45,6 @@ app.response.ResimDegistir = (id, image) => {
         if (!image)
             return reject({ ok: false, msg: "Resim Gönderilmemiş" })
 
-        OptimizeEt(image.buffer)
-            .then(data => {
-                Photo.findByIdAndUpdate(id, { photo: data })
-                    .then(data => resolve({ ok: true, data: data._id }))
-                    .catch(err => reject({ ok: false, msg: err.message }))
-            })
+        resolve({ ok: true, data: s3upload(image.buffer, id) })
     })
 }

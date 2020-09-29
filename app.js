@@ -31,49 +31,6 @@ app.use('/tab', tabRoute)
 app.use('/com', comRoute)
 // app.use('/get', getRoute)
 
-app.get('/photos/:id', (req, res) => {
-    switch (req.params.id) {
-        case "ornekOrganization":
-            return fs.readFile("./uploads/ornekOrganization", (err, data) => {
-                if (err) res.json({ ok: false });
-                res.contentType('image/jpeg');
-                res.send(data)
-            })
-        case "ornekCategory":
-            return fs.readFile("./uploads/ornekCategory", (err, data) => {
-                if (err) res.json({ ok: false });
-                res.contentType('image/jpeg');
-                res.send(data)
-            })
-        case "ornekProduct":
-            return fs.readFile("./uploads/ornekProduct", (err, data) => {
-                if (err) res.json({ ok: false });
-                res.contentType('image/jpeg');
-                res.send(data)
-            })
-        case "ornekSlider":
-            return fs.readFile("./uploads/ornekSlider", (err, data) => {
-                if (err) res.json({ ok: false });
-                res.contentType('image/jpeg');
-                res.send(data)
-            })
-    }
-
-
-    Photo.findById(req.params.id)
-        .then(data => {
-            res.contentType('image/jpeg');
-            if (!data) {
-                return res.send(fs.readFile("./uploads/null"), (err, data) => {
-                    if (err) throw err;
-                    return data
-                })
-            }
-            res.send(data.photo)
-        })
-        .catch(err => res.json({ ok: false }))
-})
-
 server.listen(process.env.PORT, () => console.log(`http://localhost:${process.env.PORT}`))
 
 module.exports = app

@@ -43,7 +43,7 @@ const OrganizationSchema = new Schema({
   },
   username: {
     type: String,
-    minlength: [5, '{PATH} en az 5 karakter olmalı'],
+    minlength: [4, '{PATH} en az 4 karakter olmalı'],
     maxlength: [35, '{PATH} en fazla 35 karakter olmalı'],
     validate: [isValidUsername, 'Kurallara uymayan Kullanıcı Adı'],
     required: [true, '{PATH} girilmesi zorunludur'],

@@ -163,6 +163,7 @@ router.delete('/:id', tokenVerify, (req, res) => {
           PhotosToDelete.push(prod.photo)
       });
 
+      console.log("PhotosToDelete", PhotosToDelete)
       const Length = PhotosToDelete.length
       for (let i = 0; i < Length; i++) {
         res.ResimSil(PhotosToDelete[i])

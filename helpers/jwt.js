@@ -15,7 +15,8 @@ module.exports.verify = async (req, res, next) => {
             res.error('İşletme bulunamadı')
         }
     } catch (error) {
-        return res.error('Kimlik doğrulama başarısız')
+        console.log("module.exports.verify -> error", error)
+        return res.error('Kimlik doğrulama başarısız', error)
     }
 }
 

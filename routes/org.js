@@ -14,7 +14,7 @@ const settingsMulter = upload.fields([
   { name: "BrosurArkaPlan", maxCount: 1 },
   { name: "Slider1", maxCount: 1 },
   { name: "Slider2", maxCount: 1 },
-  { name: "Slider3", maxCount: 1 }
+  { name: "Slider3", maxCount: 1 },
 ])
 
 router.get('/current', tokenVerify, (req, res) => {
@@ -23,15 +23,28 @@ router.get('/current', tokenVerify, (req, res) => {
     .catch(err => res.error('', err))
 })
 
+// başlangıç ve bitiş süresi ekle
+const isWithinInterval = require('date-fns/isWithinInterval')
+const endOfDay = require('date-fns/endOfDay')
+const addHours = require('date-fns/addHours')
 router.get('/reports', tokenVerify, (req, res) => {
-  const { baslangic, bitis } = req.body ||
-    Organization.findOne({ _id: req.AuthData, 'orders.date': { $gte: req.body.baslangic, $lte: req.body.bitis } }, 'orders')
-      .then(data => {
-        if (!data)
-          return res.error('Bulunamadı')
-        res.json(data)
-      })
-      .catch(err => res.error('', err))
+  const Baslangic = req.body.Baslangic ? new Date(req.body.Baslangic) : new Date('2020')
+  const Bitis = req.body.Bitis ? endOfDay(new Date(req.body.Bitis)) : addHours(endOfDay(new Date()), 3)
+
+  const response = []
+  Organization.findOne({ _id: req.AuthData }, '-_id orders')
+    .then(data => {
+      if (!data)
+        return res.error('Bulunamadı')
+      const ordersLength = data.orders.length
+      for (let i = 0; i < ordersLength; i++) {
+        const siparis = data.orders[i];
+        if (isWithinInterval(siparis.date, { start: Baslangic, end: Bitis }))
+          response.push(siparis)
+      }
+      res.json(response)
+    })
+    .catch(err => res.error('', err))
 })
 
 router.get('/:username', (req, res) => {
@@ -138,7 +151,8 @@ router.put('/settings', [settingsMulter, tokenVerify], (req, res) => {
   Organization.findById(req.AuthData).select("settings")
     .then(async data => {
       for (const [key, value] of Object.entries(req.body)) {
-        data.settings[key] = value
+        if (value != 'null')
+          data.settings[key] = value
       }
 
       if (Logo) {
@@ -164,8 +178,6 @@ router.put('/settings', [settingsMulter, tokenVerify], (req, res) => {
         else
           data.settings.Slider1 = await res.ResimDegistir(data.settings.Slider1, Slider1).then(img => img.data)
       }
-      else
-        data.settings.Slider1 = 'ornekSlider'
 
 
       if (Slider2) {
@@ -175,8 +187,6 @@ router.put('/settings', [settingsMulter, tokenVerify], (req, res) => {
         else
           data.settings.Slider2 = await res.ResimDegistir(data.settings.Slider2, Slider2).then(img => img.data)
       }
-      else
-        data.settings.Slider2 = 'ornekSlider'
 
       if (Slider3) {
         Slider3 = Slider3[0]
@@ -185,8 +195,6 @@ router.put('/settings', [settingsMulter, tokenVerify], (req, res) => {
         else
           data.settings.Slider3 = await res.ResimDegistir(data.settings.Slider3, Slider3).then(img => img.data)
       }
-      else
-        data.settings.Slider3 = 'ornekSlider'
 
       data.save()
         .then(data => {
@@ -228,14 +236,6 @@ router.post('/login', async (req, res) => {
     .catch(err => res.error('', err))
 })
 
-router.post('/logout', tokenVerify, async (req, res) => {
-  if (sonuc) {
-    res.json({ ok: true })
-  } else {
-    res.error('', sonuc)
-  }
-})
-
 router.post('/resetPassword', tokenVerify, async (req, res) => {
   const { password, oldPassword } = req.body
   if (!password || !oldPassword)
@@ -273,7 +273,9 @@ router.post('/refreshToken', tokenVerify, async (req, res) => {
   if (!password)
     return res.error('Şifre girilmemiş')
 
+  console.log("req.AuthData", req.AuthData)
   const organization = await Organization.findById(req.AuthData, 'password')
+  console.log("organization", organization)
 
   if (!await bcrypt.compare(password, organization.password)) {
     return res.error('Şifre yanlış')
